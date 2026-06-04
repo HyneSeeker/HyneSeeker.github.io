@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>场域 | Research</title>
+    <link rel="stylesheet" href="css/style.css?v=title-20260525">
+    <link rel="stylesheet" href="css/pages.css?v=responsive-polish-20260605">
+</head>
+<body data-lang="zh">
+    <!-- 导航栏 -->
+    <nav class="nav" id="nav">
+        <div class="nav-logo">
+            <a href="index.html">
+                <img src="images/Ding_ver1.png" alt="DING Logo" class="nav-logo-img">
+            </a>
+        </div>
+        <div class="nav-menu">
+            <a href="index.html#research" class="nav-link">
+                <span class="lang-zh">回溯</span>
+                <span class="lang-en">Back Home</span>
+            </a>
+            <a href="life.html" class="nav-link">
+                <span class="lang-zh">留白</span>
+                <span class="lang-en">Life</span>
+            </a>
+            <a href="motion.html" class="nav-link">
+                <span class="lang-zh">律动</span>
+                <span class="lang-en">Motion</span>
+            </a>
+            <a href="about.html" class="nav-link">
+                <span class="lang-zh">交织</span>
+                <span class="lang-en">About</span>
+            </a>
+        </div>
+        <button class="lang-toggle" id="langToggle">
+            <span class="lang-icon">EN</span>
+        </button>
+    </nav>
+
+    <!-- 顶部大图区域 -->
+    <section class="page-hero" id="pageHero">
+        <div class="page-hero-bg">
+            <img src="images/RESEARCH/research.png" alt="Research Background" class="hero-bg-image">
+        </div>
+        <div class="page-hero-overlay"></div>
+        <div class="page-hero-content">
+            <h1 class="page-hero-title">
+                <span class="lang-zh">科研探索</span>
+                <span class="lang-en">Research Exploration</span>
+            </h1>
+            <p class="page-hero-subtitle">
+                <span class="lang-zh">追求知识的边界，探索未知的世界</span>
+                <span class="lang-en">Pushing the Boundaries of Knowledge</span>
+            </p>
+        </div>
+        <div class="page-hero-scroll">
+            <span class="lang-zh">向下滚动</span>
+            <span class="lang-en">Scroll Down</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    <!-- 内容列表区域 -->
+    <section class="page-content" id="pageContent">
+        <div class="research-layout">
+            <aside class="research-toc" aria-label="Research sections">
+                <div class="research-toc-head">
+                    <span class="research-toc-kicker">Index</span>
+                    <button class="research-toc-toggle" type="button" aria-expanded="true">
+                        <span class="toggle-mark" aria-hidden="true">‹</span>
+                        <span class="toggle-label">
+                            <span class="lang-zh">收起目录</span>
+                            <span class="lang-en">Collapse index</span>
+                        </span>
+                    </button>
+                </div>
+                <nav class="research-toc-nav">
+                    <button type="button" data-target="#current-work">
+                        <span class="toc-index">C</span>
+                        <span>
+                            <span class="lang-zh">正在做的事</span>
+                            <span class="lang-en">Current Work</span>
+                        </span>
+                    </button>
+                    <button type="button" data-target="#published-work">
+                        <span class="toc-index">P</span>
+                        <span>
+                            <span class="lang-zh">已发表成果</span>
+                            <span class="lang-en">Published Work</span>
+                        </span>
+                    </button>
+                    <button type="button" data-target="#talks-colloquia">
+                        <span class="toc-index">T</span>
+                        <span>
+                            <span class="lang-zh">会议报告</span>
+                            <span class="lang-en">Talks</span>
+                        </span>
+                    </button>
+                    <button type="button" data-target="#references">
+                        <span class="toc-index">R</span>
+                        <span>
+                            <span class="lang-zh">参考</span>
+                            <span class="lang-en">Reference</span>
+                        </span>
+                    </button>
+                    <button type="button" data-target="#ideas">
+                        <span class="toc-index">I</span>
+                        <span>
+                            <span class="lang-zh">很多想法</span>
+                            <span class="lang-en">Ideas</span>
+                        </span>
+                    </button>
+                </nav>
+            </aside>
+
+            <div class="content-list">
+            <section class="research-section" id="current-work">
+                <div class="research-section-header">
+                    <span class="section-kicker">Current</span>
+                    <h2 class="research-section-title">
+                        <span class="lang-zh">目前正在做的事</span>
+                        <span class="lang-en">Current Work</span>
+                    </h2>
+                </div>
+
+                <div class="content-item">
+                    <div class="item-number">01</div>
+                    <div class="item-image">
+                        <img src="images/RESEARCH/dart_catalog.jpg" alt="DART" class="research-image" width="800" height="800">
+                    </div>
+                    <div class="item-content">
+                        <h3 class="item-title">
+                            <span class="lang-zh">稻城射电望远镜（DART）巡天源表构建</span>
+                            <span class="lang-en">DART Survey Catalog</span>
+                        </h3>
+                        <p class="item-description">
+                            <span class="lang-zh">以稻城射电望远镜巡天数据为基础，进行源探测和交叉证认，目标是形成可检索、可复现的射电源表，为后续瞬变源搜索和科学研究提供基础数据。</span>
+                            <span class="lang-en">Building a searchable and reproducible radio-source catalog from DART survey data, with source detection and cross-validation for future transient and scientific studies.</span>
+                        </p>
+                        <div class="item-tags">
+                            <span class="tag tag-method"><span class="lang-zh">仪器/观测</span><span class="lang-en">Instrument/Observation</span></span>
+                            <span class="tag tag-band"><span class="lang-zh">射电</span><span class="lang-en">Radio</span></span>
+                            <span class="tag"><span class="lang-zh">DART</span><span class="lang-en">DART</span></span>
+                            <span class="tag"><span class="lang-zh">源表</span><span class="lang-en">Catalog</span></span>
+                            <span class="tag"><span class="lang-zh">巡天</span><span class="lang-en">Survey</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-item">
+                    <div class="item-number">02</div>
+                    <div class="item-image">
+                        <img src="images/RESEARCH/still_working.png" alt="still_working" class="research-image" width="1536" height="1024">
+                    </div>
+                    <div class="item-content">
+                        <h3 class="item-title">
+                            <span class="lang-zh">快速射电暴（FRB）及其持续射电源（PRS）的超新星起源模型</span>
+                            <span class="lang-en">Supernova-Origin Models for FRBs and PRSs</span>
+                        </h3>
+                        <p class="item-description">
+                            <span class="lang-zh">围绕快速射电暴与持续射电源可能的超新星遗迹或致密星环境，建立从爆发、能量注入到射电辐射演化的物理图像，并尝试连接观测特征与源区环境。</span>
+                            <span class="lang-en">Exploring whether FRBs and their persistent radio sources can arise from supernova remnants or compact-object environments, linking energy injection, radio evolution, and local source conditions.</span>
+                        </p>
+                        <div class="item-tags">
+                            <span class="tag tag-method"><span class="lang-zh">模型</span><span class="lang-en">Model</span></span>
+                            <span class="tag tag-band"><span class="lang-zh">射电</span><span class="lang-en">Radio</span></span>
+                            <span class="tag"><span class="lang-zh">快速射电暴</span><span class="lang-en">FRB</span></span>
+                            <span class="tag"><span class="lang-zh">持续射电源</span><span class="lang-en">PRS</span></span>
+                            <span class="tag"><span class="lang-zh">超新星</span><span class="lang-en">Supernova</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-item">
+                    <div class="item-number">03</div>
+                    <div class="item-image">
+                        <img src="images/RESEARCH/frb_rate.png" alt="FRB Rate" class="research-image" width="1000" height="600">
+                    </div>
+                    <div class="item-content">
+                        <h3 class="item-title">
+                            <span class="lang-zh">快速射电暴（FRB）事件率与宿主星系恒星形成率的统计研究</span>
+                            <span class="lang-en">FRB Event Rates and Host-Galaxy Star Formation</span>
+                        </h3>
+                        <p class="item-description">
+                            <span class="lang-zh">结合快速射电暴样本、宿主星系性质与选择效应，比较事件率随恒星形成率和红移的变化，探索FRB族群与恒星形成历史之间的统计联系。</span>
+                            <span class="lang-en">Combining FRB samples, host-galaxy properties, and selection effects to compare event rates with star formation and redshift, and to probe the statistical connection between FRB populations and stellar evolution.</span>
+                        </p>
+                        <div class="item-tags">
+                            <span class="tag tag-method"><span class="lang-zh">观测</span><span class="lang-en">Observation</span></span>
+                            <span class="tag tag-band"><span class="lang-zh">射电</span><span class="lang-en">Radio</span></span>
+                            <span class="tag"><span class="lang-zh">快速射电暴</span><span class="lang-en">FRB</span></span>
+                            <span class="tag"><span class="lang-zh">恒星形成率</span><span class="lang-en">SFR</span></span>
+                            <span class="tag"><span class="lang-zh">统计</span><span class="lang-en">Statistics</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-item">
+                    <div class="item-number">04</div>
+                    <div class="item-image">
+                        <img src="images/RESEARCH/spherex.jpg" alt="SPHEREx" class="research-image" width="1614" height="1610">
+                    </div>
+                    <div class="item-content">
+                        <h3 class="item-title">
+                            <span class="lang-zh">SPHEREx数据中亚稳态氦的研究</span>
+                            <span class="lang-en">Metastable Helium in SPHEREx Data</span>
+                        </h3>
+                        <p class="item-description">
+                            <span class="lang-zh">基于 SPHEREx 光谱数据提取亚稳态氦（He I 1083 nm）谱线强度，研究其在地球高层热层中的时空分布特征，分析冬季氦隆起、极区增强及太阳活动相关的变化过程。</span>
+                            <span class="lang-en">Extracting metastable helium (He I 1083 nm) line intensities from SPHEREx spectral data to study their spatiotemporal distribution in the Earth's upper thermosphere, analyzing winter helium bulges, polar enhancements, and solar activity-related variations.</span>
+                        </p>
+                        <div class="item-tags">
+                            <span class="tag tag-method"><span class="lang-zh">观测</span><span class="lang-en">Observation</span></span>
+                            <span class="tag tag-band"><span class="lang-zh">红外</span><span class="lang-en">Infrared</span></span>
+                            <span class="tag"><span class="lang-zh">SPHEREx</span><span class="lang-en">SPHEREx</span></span>
+                            <span class="tag"><span class="lang-zh">亚稳态氦</span><span class="lang-en">Metastable Helium</span></span>
+                            <span class="tag"><span class="lang-zh">光谱</span><span class="lang-en">Spectra</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-item">
+                    <div class="item-number">05</div>
+                    <div class="item-image">
+                        <img src="images/RESEARCH/still_working.png" alt="still_working" class="research-image" width="1536" height="1024">
+                    </div>
+                    <div class="item-content">
+                        <h3 class="item-title">
+                            <span class="lang-zh">银河系气体吸积与弥散电离云</span>
+                            <span class="lang-en">Galactic Gas Accretion and Diffuse Ionized Clouds</span>
+                        </h3>
+                        <p class="item-description">
+                            <span class="lang-zh">关注中间速度云（IVCs）和高速云（HVCs）向银河系盘面的气体输运过程，探索它们作为银河系星际介质补给来源的作用。结合 JWST 发射线观测与多波段数据，研究这些云的电离状态、激波特征及其与银河系气体循环的联系。</span>
+                            <span class="lang-en">Focusing on the gas transport processes of intermediate-velocity clouds (IVCs) and high-velocity clouds (HVCs) toward the Galactic disk, exploring their roles as sources of Galactic interstellar medium supply. Combining JWST emission line observations with multi-wavelength data to study the ionization states, shock characteristics, and connections to the Galactic gas cycle.</span>
+                        </p>
+                        <div class="item-tags">
+                            <span class="tag tag-method"><span class="lang-zh">观测</span><span class="lang-en">Observation</span></span>
+                            <span class="tag tag-band"><span class="lang-zh">红外</span><span class="lang-en">Infrared</span></span>
+                            <span class="tag"><span class="lang-zh">JWST</span><span class="lang-en">JWST</span></span>
+                            <span class="tag"><span class="lang-zh">温电离介质</span><span class="lang-en">WIM</span></span>
+                            <span class="tag"><span class="lang-zh">银河系</span><span class="lang-en">Milky Way</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-item">
+                    <div class="item-number">06</div>
+                    <div class="item-image">
+                        <img src="images/RESEARCH/still_working.png" alt="still_working" class="research-image" width="1536" height="1024">
+                    </div>
+                    <div class="item-content">
+                        <h3 class="item-title">
+                            <span class="lang-zh">基于被动雷达的空间态势感知</span>
+                            <span class="lang-en">Space Situational Awareness with Passive Radar</span>
+                        </h3>
+                        <p class="item-description">
+                            <span class="lang-zh">利用被动雷达技术进行空间态势感知，研究其在监测和识别空间目标方面的应用。</span>
+                            <span class="lang-en">Using passive radar technology for space situational awareness, investigating its applications in monitoring and identifying space objects.</span>
+                        </p>
+                        <div class="item-tags">
+                            <span class="tag tag-method"><span class="lang-zh">仪器/观测</span><span class="lang-en">Instrument/Observation</span></span>
+                            <span class="tag tag-band"><span class="lang-zh">射电</span><span class="lang-en">Radio</span></span>
+                            <span class="tag"><span class="lang-zh">被动雷达</span><span class="lang-en">Passive Radar</span></span>
+                            <span class="tag"><span class="lang-zh">空间态势感知</span><span class="lang-en">Space Situational Awareness</span></span>
+                            <span class="tag"><span class="lang-zh">空间目标</span><span class="lang-en">Space Objects</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-item">
+                    <div class="item-number">07</div>
+                    <div class="item-image">
+                        <img src="images/RESEARCH/pulsar_searching.jpg" alt="Pulsar Search" class="research-image" width="2162" height="986">
+                    </div>
+                    <div class="item-content">
+                        <h3 class="item-title">
+                            <span class="lang-zh">中国天眼（FAST）数据中的脉冲星搜索</span>
+                            <span class="lang-en">Pulsar Searches in FAST Data</span>
+                        </h3>
+                        <p class="item-description">
+                            <span class="lang-zh">面向FAST观测数据开展脉冲星候选体搜索、筛选和验证，结合时域信号处理与机器学习方法，提高弱信号和复杂环境中的发现效率。</span>
+                            <span class="lang-en">Searching, filtering, and validating pulsar candidates in FAST observations, combining time-domain signal processing with machine learning methods to improve discovery efficiency.</span>
+                        </p>
+                        <div class="item-tags">
+                            <span class="tag tag-method"><span class="lang-zh">观测</span><span class="lang-en">Observation</span></span>
+                            <span class="tag tag-band"><span class="lang-zh">射电</span><span class="lang-en">Radio</span></span>
+                            <span class="tag"><span class="lang-zh">FAST</span><span class="lang-en">FAST</span></span>
+                            <span class="tag"><span class="lang-zh">脉冲星</span><span class="lang-en">Pulsar</span></span>
+                            <span class="tag"><span class="lang-zh">搜索</span><span class="lang-en">Search</span></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="research-section" id="published-work">
+                <div class="research-section-header">
+                    <span class="section-kicker">Published</span>
+                    <h2 class="research-section-title">
+                        <span class="lang-zh">已发表成果</span>
+                        <span class="lang-en">Published Work</span>
+                    </h2>
+                </div>
+
+                <div class="content-item">
+                    <div class="item-number">P1</div>
+                    <div class="item-image">
+                        <img src="images/RESEARCH/still_working.png" alt="still_working" class="research-image" width="1536" height="1024">
+                    </div>
+                    <div class="item-content">
+                        <h3 class="item-title">
+                            <span class="lang-zh">论文</span>
+                            <span class="lang-en">Papers</span>
+                        </h3>
+                        <p class="item-description">
+                            <span class="lang-zh">研究进行中</span>
+                            <span class="lang-en">In progress</span>
+                        </p>
+                        <div class="item-tags">
+                            <span class="tag"><span class="lang-zh">论文</span><span class="lang-en">Papers</span></span>
+                            <span class="tag"><span class="lang-zh">ADS</span><span class="lang-en">ADS</span></span>
+                            <span class="tag"><span class="lang-zh">arXiv</span><span class="lang-en">arXiv</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-item">
+                    <div class="item-number">P2</div>
+                    <div class="item-image">
+                        <img src="images/RESEARCH/still_working.png" alt="still_working" class="research-image" width="1536" height="1024">
+                    </div>
+                    <div class="item-content">
+                        <h3 class="item-title">
+                            <span class="lang-zh">工具 / 软件 / 管线</span>
+                            <span class="lang-en">Tools / Software / Pipelines</span>
+                        </h3>
+                        <p class="item-description">
+                            <span class="lang-zh">开发进行中</span>
+                            <span class="lang-en">In progress</span>
+                        </p>
+                        <div class="item-tags">
+                            <span class="tag"><span class="lang-zh">工具</span><span class="lang-en">Tools</span></span>
+                            <span class="tag"><span class="lang-zh">软件</span><span class="lang-en">Software</span></span>
+                            <span class="tag"><span class="lang-zh">管线</span><span class="lang-en">Pipelines</span></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="research-section" id="talks-colloquia">
+                <div class="research-section-header">
+                    <span class="section-kicker">Talks</span>
+                    <h2 class="research-section-title">
+                        <span class="lang-zh">会议报告</span>
+                        <span class="lang-en">Talks and Colloquia</span>
+                    </h2>
+                </div>
+
+                <div class="talks-list">
+                    <article class="talk-row">
+                        <span class="talk-index">T1</span>
+                        <div>
+                            <h3>
+                                <span class="lang-zh">2026星际物质及动态宇宙（VII）论坛会议</span>
+                                <span class="lang-en">Forum on Interstellar Matter and the Dynamic Universe (VII), 2026</span>
+                            </h3>
+                            <p>
+                                <span class="lang-zh">2026.1.10，海报展示</span>
+                                <span class="lang-en">2026.1.10, poster presentation</span>
+                            </p>
+                        </div>
+                    </article>
+
+                    <article class="talk-row">
+                        <span class="talk-index">T2</span>
+                        <div>
+                            <h3>
+                                <span class="lang-zh">FRB2026</span>
+                                <span class="lang-en">FRB2026</span>
+                            </h3>
+                            <p>
+                                <span class="lang-zh">2026.7.6-2026.7.10，3 分钟报告</span>
+                                <span class="lang-en">2026.7.6-2026.7.10, 3-minute presentation</span>
+                            </p>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="research-section" id="references">
+                <div class="research-section-header">
+                    <span class="section-kicker">Reference</span>
+                    <h2 class="research-section-title">
+                        <span class="lang-zh">参考</span>
+                        <span class="lang-en">Reference</span>
+                    </h2>
+                </div>
+
+                <div class="talks-list reference-list">
+                    <article class="talk-row reference-row">
+                        <span class="talk-index">R1</span>
+                        <div>
+                            <h3>
+                                <a href="https://lidi-astro.com" target="_blank" rel="noopener noreferrer" data-reference-link>Li Di Astro</a>
+                            </h3>
+                            <p>https://lidi-astro.com</p>
+                        </div>
+                    </article>
+
+                    <article class="talk-row reference-row">
+                        <span class="talk-index">R2</span>
+                        <div>
+                            <h3>
+                                <a href="http://groups.bao.ac.cn/ism/tzsx/202105/t20210525_640943.html" target="_blank" rel="noopener noreferrer" data-reference-link>
+                                    <span class="lang-zh">中国科学院国家天文台星际介质组</span>
+                                    <span class="lang-en">Interstellar Medium Group, National Astronomical Observatories, Chinese Academy of Sciences (NAOC)</span>
+                                </a>
+                            </h3>
+                            <p>http://groups.bao.ac.cn/ism/tzsx/202105/t20210525_640943.html</p>
+                        </div>
+                    </article>
+
+                    <article class="talk-row reference-row">
+                        <span class="talk-index">R3</span>
+                        <div>
+                            <h3>
+                                <a href="https://sites.astro.caltech.edu/~srk/" target="_blank" rel="noopener noreferrer" data-reference-link>S. R. Kulkarni</a>
+                            </h3>
+                            <p>https://sites.astro.caltech.edu/~srk/</p>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <section class="research-section ideas-section" id="ideas">
+                <div class="research-section-header">
+                    <span class="section-kicker">Ideas</span>
+                    <h2 class="research-section-title">
+                        <span class="lang-zh">很多想法 / 想做的事</span>
+                        <span class="lang-en">Ideas & Future Directions</span>
+                    </h2>
+                </div>
+
+                <div class="ideas-grid">
+                    <article class="content-item idea-card">
+                        <div class="idea-card-top">
+                            <span class="idea-number">I1</span>
+                            <span class="idea-status">
+                                <span class="lang-zh">探索性</span>
+                                <span class="lang-en">Speculative</span>
+                            </span>
+                        </div>
+                        <h3 class="idea-title">
+                            <span class="lang-zh">小射电望远镜观测</span>
+                            <span class="lang-en">Small Radio Telescope Observations</span>
+                        </h3>
+                        <p class="idea-description">
+                            <span class="lang-zh">搭建或使用小型射电望远镜进行可持续观测，把仪器、数据采集、定标和简单科学目标连接起来，让个人尺度的观测也能进入真正的科研流程。</span>
+                            <span class="lang-en">Building or using small radio telescopes for sustained observations, connecting instrumentation, data acquisition, calibration, and compact science goals.</span>
+                        </p>
+                        <div class="item-tags">
+                            <span class="tag tag-method"><span class="lang-zh">仪器/观测</span><span class="lang-en">Instrument/Observation</span></span>
+                            <span class="tag tag-band"><span class="lang-zh">射电</span><span class="lang-en">Radio</span></span>
+                        </div>
+                    </article>
+
+                    <article class="content-item idea-card">
+                        <div class="idea-card-top">
+                            <span class="idea-number">I2</span>
+                            <span class="idea-status">
+                                <span class="lang-zh">开放问题</span>
+                                <span class="lang-en">Open Question</span>
+                            </span>
+                        </div>
+                        <h3 class="idea-title">
+                            <span class="lang-zh">寻找外星人 / 研究宇宙社会</span>
+                            <span class="lang-en">SETI and Cosmic Sociology</span>
+                        </h3>
+                        <p class="idea-description">
+                            <span class="lang-zh">把寻找地外文明的观测问题和“宇宙社会学”的思想实验放在一起，思考技术文明的可观测痕迹、沉默的原因，以及我们如何定义宇宙中的交流。</span>
+                            <span class="lang-en">Bringing SETI and cosmic-sociology thought experiments together to think about observable technosignatures, the causes of cosmic silence, and how communication might be defined on astronomical scales.</span>
+                        </p>
+                        <div class="item-tags">
+                            <span class="tag"><span class="lang-zh">地外文明搜索</span><span class="lang-en">SETI</span></span>
+                            <span class="tag"><span class="lang-zh">技术迹象</span><span class="lang-en">Technosignature</span></span>
+                            <span class="tag"><span class="lang-zh">宇宙社会</span><span class="lang-en">Cosmic Sociology</span></span>
+                        </div>
+                    </article>
+                </div>
+            </section>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="images/Ding_ver1.png" alt="DING Logo" class="footer-logo-img">
+            </div>
+            <p class="footer-text">
+                <span class="lang-zh">In Continuous Exploration.</span>
+                <span class="lang-en">In Continuous Exploration.</span>
+            </p>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/pages.js?v=carousel-stable-20260604"></script>
+</body>
+</html>
