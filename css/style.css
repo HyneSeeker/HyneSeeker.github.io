@@ -370,24 +370,24 @@ body {
 }
 
 .section-research {
-    --section-bg-image: url('../images/research.png');
+    --section-bg-image: url('../images/research.webp');
     --section-bg-opacity: 0.54;
 }
 
 .section-life {
-    --section-bg-image: url('../images/life.jpg');
+    --section-bg-image: url('../images/life-bg.webp');
     --section-bg-position: center 64%;
     --section-bg-opacity: 0.48;
 }
 
 .section-sports {
-    --section-bg-image: url('../images/sports.jpg');
+    --section-bg-image: url('../images/sports.webp');
     --section-bg-position: center 62%;
     --section-bg-opacity: 0.50;
 }
 
 .section-contact {
-    --section-bg-image: url('../images/jiaozhi.png');
+    --section-bg-image: url('../images/jiaozhi.webp');
     --section-bg-position: center 62%;
     --section-bg-opacity: 0.48;
 }

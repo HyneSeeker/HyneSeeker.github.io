@@ -42,6 +42,56 @@
         }
     }
 
+    const transitionImagePreloads = {
+        'research.html': [
+            'images/RESEARCH/research.webp',
+            'images/RESEARCH/dart_catalog.webp',
+            'images/RESEARCH/still_working.webp',
+            'images/RESEARCH/spherex.webp'
+        ],
+        'life.html': [
+            'images/LIFE/life.webp',
+            'images/LIFE/ChinaMap1-dark.webp',
+            'images/LIFE/TRAVEL/beyond.webp',
+            'images/LIFE/MOTOR/motor1.webp',
+            'images/LIFE/ART/dingprize.webp'
+        ],
+        'motion.html': [
+            'images/MOTION/sports.webp',
+            'images/MOTION/OR/or1.webp',
+            'images/MOTION/bilibili.webp',
+            'images/MOTION/TRACK/track1.webp'
+        ],
+        'about.html': [
+            'images/ABOUT/jiaozhi.webp',
+            'images/ABOUT/id.webp'
+        ]
+    };
+
+    function getTransitionPreloadUrls(targetUrl) {
+        const page = targetUrl.split('#')[0].split('?')[0].split('/').pop();
+        return transitionImagePreloads[page] || [];
+    }
+
+    const preloadedImages = new Set();
+
+    function preloadImages(urls) {
+        urls.forEach(src => {
+            if (preloadedImages.has(src)) return;
+            preloadedImages.add(src);
+
+            const image = new Image();
+            image.decoding = 'async';
+            image.src = src;
+
+            const link = document.createElement('link');
+            link.rel = 'prefetch';
+            link.as = 'image';
+            link.href = src;
+            document.head.appendChild(link);
+        });
+    }
+
     // 慢速加载（首次进入页面）- 约2秒
     function slowLoader(callback) {
         if (loader) {
@@ -111,12 +161,34 @@
         });
     }
 
+    window.addEventListener('pageshow', event => {
+        const navigationEntry = performance.getEntriesByType?.('navigation')?.[0];
+        const isHistoryRestore = event.persisted || navigationEntry?.type === 'back_forward';
+        if (!isHistoryRestore) return;
+
+        if (loader) {
+            loader.classList.add('loaded');
+        }
+        if (progressBar) {
+            progressBar.style.width = '100%';
+        }
+    });
+
     // ===== 页面切换过渡 - 仅主页 =====
     if (isHomePage) {
         document.querySelectorAll('a[href$=".html"]').forEach(link => {
+            link.addEventListener('pointerenter', () => {
+                preloadImages(getTransitionPreloadUrls(link.getAttribute('href') || ''));
+            }, { once: true });
+            link.addEventListener('focus', () => {
+                preloadImages(getTransitionPreloadUrls(link.getAttribute('href') || ''));
+            }, { once: true });
+
             link.addEventListener('click', function(e) {
+                if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
                 e.preventDefault();
                 const targetUrl = this.getAttribute('href');
+                preloadImages(getTransitionPreloadUrls(targetUrl));
 
                 // 统一使用 1000ms
                 customLoader(1000, () => {

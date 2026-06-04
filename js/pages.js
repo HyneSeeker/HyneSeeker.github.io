@@ -30,10 +30,101 @@
         }
     }
 
+    const transitionImagePreloads = {
+        'research.html': [
+            'images/RESEARCH/research.webp',
+            'images/RESEARCH/dart_catalog.webp',
+            'images/RESEARCH/still_working.webp',
+            'images/RESEARCH/spherex.webp'
+        ],
+        'life.html': [
+            'images/LIFE/life.webp',
+            'images/LIFE/ChinaMap1-dark.webp',
+            'images/LIFE/TRAVEL/beyond.webp',
+            'images/LIFE/MOTOR/motor1.webp',
+            'images/LIFE/ART/dingprize.webp'
+        ],
+        'motion.html': [
+            'images/MOTION/sports.webp',
+            'images/MOTION/OR/or1.webp',
+            'images/MOTION/bilibili.webp',
+            'images/MOTION/TRACK/track1.webp'
+        ],
+        'about.html': [
+            'images/ABOUT/jiaozhi.webp',
+            'images/ABOUT/id.webp'
+        ],
+        'index.html': [
+            'images/research.webp',
+            'images/spherex.webp',
+            'images/life-bg.webp',
+            'images/life-map.webp',
+            'images/sports.webp'
+        ]
+    };
+
+    function getTransitionPreloadUrls(targetUrl) {
+        const page = targetUrl.split('#')[0].split('?')[0].split('/').pop() || 'index.html';
+        return transitionImagePreloads[page] || [];
+    }
+
+    const preloadedImages = new Set();
+    let activeTransitionLoader = null;
+    let activeTransitionInterval = null;
+    let activeTransitionTimeout = null;
+
+    function preloadImages(urls) {
+        urls.forEach(src => {
+            if (preloadedImages.has(src)) return;
+            preloadedImages.add(src);
+
+            const image = new Image();
+            image.decoding = 'async';
+            image.src = src;
+
+            const link = document.createElement('link');
+            link.rel = 'prefetch';
+            link.as = 'image';
+            link.href = src;
+            document.head.appendChild(link);
+        });
+    }
+
+    function clearPageTransition() {
+        if (activeTransitionInterval) {
+            clearInterval(activeTransitionInterval);
+            activeTransitionInterval = null;
+        }
+        if (activeTransitionTimeout) {
+            clearTimeout(activeTransitionTimeout);
+            activeTransitionTimeout = null;
+        }
+        if (activeTransitionLoader) {
+            activeTransitionLoader.remove();
+            activeTransitionLoader = null;
+        }
+        document.querySelectorAll('[data-transitioning="true"]').forEach(link => {
+            link.dataset.transitioning = 'false';
+        });
+    }
+
+    window.addEventListener('pageshow', clearPageTransition);
+    window.addEventListener('pagehide', clearPageTransition);
+    window.addEventListener('popstate', clearPageTransition);
+
     // ===== 页面切换过渡 =====
     document.querySelectorAll('a[href$=".html"]').forEach(link => {
+        link.addEventListener('pointerenter', () => {
+            preloadImages(getTransitionPreloadUrls(link.getAttribute('href') || ''));
+        }, { once: true });
+        link.addEventListener('focus', () => {
+            preloadImages(getTransitionPreloadUrls(link.getAttribute('href') || ''));
+        }, { once: true });
+
         link.addEventListener('click', function(e) {
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
             const targetUrl = this.getAttribute('href');
+            preloadImages(getTransitionPreloadUrls(targetUrl));
 
             // 返回主页的链接直接跳转，由主页 main.js 处理加载动画
             if (targetUrl.includes('index.html')) {
@@ -45,6 +136,7 @@
 
             // 防止重复触发
             if (link.dataset.transitioning === 'true') return;
+            clearPageTransition();
             link.dataset.transitioning = 'true';
 
             // 统一使用 1000ms
@@ -53,6 +145,7 @@
             // 创建临时加载屏
             const loader = document.createElement('div');
             loader.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;pointer-events:none;';
+            loader.dataset.pageTransitionLoader = 'true';
             loader.innerHTML = `
                 <div class="pages-logo" style="width:200px;opacity:0;">
                     <img src="images/Ding_ver1.png" alt="DING Logo" style="width:100%;height:auto;">
@@ -61,6 +154,7 @@
                     <div class="pages-progress-bar" style="height:100%;background:#fff;width:0;transition:width 0.3s ease;"></div>
                 </div>
             `;
+            activeTransitionLoader = loader;
             document.body.appendChild(loader);
 
             // 移除链接的焦点，防止 :active 样式
@@ -81,13 +175,14 @@
             let progress = 0;
             const stepTime = 40;
             const progressPerStep = 100 / (transitionTime / stepTime);
-            const loadingInterval = setInterval(() => {
+            activeTransitionInterval = setInterval(() => {
                 progress += progressPerStep;
                 if (progress >= 100) {
                     progress = 100;
                     if (progressBar) progressBar.style.width = '100%';
-                    clearInterval(loadingInterval);
-                    setTimeout(() => {
+                    clearInterval(activeTransitionInterval);
+                    activeTransitionInterval = null;
+                    activeTransitionTimeout = setTimeout(() => {
                         window.location.href = targetUrl;
                     }, 50);
                 } else {
@@ -377,13 +472,13 @@
     // ===== 旅行地图交互 =====
     let activeTravelPlace = null;
     const defaultTravelPhotos = [
-        'images/LIFE/TRAVEL/beyond.png'
+        'images/LIFE/TRAVEL/beyond.webp'
     ];
     const countryTravelPhotos = {
-        France: ['images/LIFE/TRAVEL/France/fr.jpg'],
-        Italy: ['images/LIFE/TRAVEL/Italy/it.jpg'],
-        'New Zealand': ['images/LIFE/TRAVEL/NewZealand/nz.jpg'],
-        Qatar: ['images/LIFE/TRAVEL/Qatar/qatar.jpg']
+        France: ['images/LIFE/TRAVEL/France/fr.webp'],
+        Italy: ['images/LIFE/TRAVEL/Italy/it.webp'],
+        'New Zealand': ['images/LIFE/TRAVEL/NewZealand/nz.webp'],
+        Qatar: ['images/LIFE/TRAVEL/Qatar/qatar.webp']
     };
     const countryTravelDescriptions = {
         China: {
@@ -408,32 +503,32 @@
         }
     };
     const chinaProvinceTravelPhotos = {
-        安徽: ['images/LIFE/TRAVEL/CHINA/Anhui/ah.jpg'],
-        澳门: ['images/LIFE/TRAVEL/CHINA/Aomen/am.jpg'],
-        北京: ['images/LIFE/TRAVEL/CHINA/Beijing/bj.jpg'],
-        重庆: ['images/LIFE/TRAVEL/CHINA/Chongqing/cq.jpg'],
-        广东: ['images/LIFE/TRAVEL/CHINA/Guangdong/gd.jpg'],
-        贵州: ['images/LIFE/TRAVEL/CHINA/Guizhou/gz.jpg'],
-        海南: ['images/LIFE/TRAVEL/CHINA/Hainan/hn.jpg'],
-        河北: ['images/LIFE/TRAVEL/CHINA/Hebei/hb.jpg'],
-        河南: ['images/LIFE/TRAVEL/CHINA/Henan/hn.jpg'],
-        湖北: ['images/LIFE/TRAVEL/CHINA/Hubei/hb.jpg'],
-        湖南: ['images/LIFE/TRAVEL/CHINA/Hunan/hn.jpg'],
-        江苏: ['images/LIFE/TRAVEL/CHINA/Jiangsu/js.jpg'],
-        江西: ['images/LIFE/TRAVEL/CHINA/Jiangxi/jx.jpg'],
-        吉林: ['images/LIFE/TRAVEL/CHINA/Jilin/jl.jpg'],
-        辽宁: ['images/LIFE/TRAVEL/CHINA/Liaoning/ln.jpg'],
-        内蒙古: ['images/LIFE/TRAVEL/CHINA/Neimenggu/nm.jpg'],
-        宁夏: ['images/LIFE/TRAVEL/CHINA/Ningxia/nx.jpg'],
-        四川: ['images/LIFE/TRAVEL/CHINA/SIchuan/sc.jpg'],
-        山东: ['images/LIFE/TRAVEL/CHINA/Shandong/sd.jpg'],
-        上海: ['images/LIFE/TRAVEL/CHINA/Shanghai/sh.jpg'],
-        山西: ['images/LIFE/TRAVEL/CHINA/Shanxi_Jin/sx.jpg'],
-        陕西: ['images/LIFE/TRAVEL/CHINA/Shanxi/sx.jpg'],
-        天津: ['images/LIFE/TRAVEL/CHINA/Tianjin/tj.jpg'],
-        香港: ['images/LIFE/TRAVEL/CHINA/Xianggang/xg.jpg'],
-        云南: ['images/LIFE/TRAVEL/CHINA/Yunnan/yn.jpg'],
-        浙江: ['images/LIFE/TRAVEL/CHINA/Zhejiang/zj.jpg']
+        安徽: ['images/LIFE/TRAVEL/CHINA/Anhui/ah.webp'],
+        澳门: ['images/LIFE/TRAVEL/CHINA/Aomen/am.webp'],
+        北京: ['images/LIFE/TRAVEL/CHINA/Beijing/bj.webp'],
+        重庆: ['images/LIFE/TRAVEL/CHINA/Chongqing/cq.webp'],
+        广东: ['images/LIFE/TRAVEL/CHINA/Guangdong/gd.webp'],
+        贵州: ['images/LIFE/TRAVEL/CHINA/Guizhou/gz.webp'],
+        海南: ['images/LIFE/TRAVEL/CHINA/Hainan/hn.webp'],
+        河北: ['images/LIFE/TRAVEL/CHINA/Hebei/hb.webp'],
+        河南: ['images/LIFE/TRAVEL/CHINA/Henan/hn.webp'],
+        湖北: ['images/LIFE/TRAVEL/CHINA/Hubei/hb.webp'],
+        湖南: ['images/LIFE/TRAVEL/CHINA/Hunan/hn.webp'],
+        江苏: ['images/LIFE/TRAVEL/CHINA/Jiangsu/js.webp'],
+        江西: ['images/LIFE/TRAVEL/CHINA/Jiangxi/jx.webp'],
+        吉林: ['images/LIFE/TRAVEL/CHINA/Jilin/jl.webp'],
+        辽宁: ['images/LIFE/TRAVEL/CHINA/Liaoning/ln.webp'],
+        内蒙古: ['images/LIFE/TRAVEL/CHINA/Neimenggu/nm.webp'],
+        宁夏: ['images/LIFE/TRAVEL/CHINA/Ningxia/nx.webp'],
+        四川: ['images/LIFE/TRAVEL/CHINA/SIchuan/sc.webp'],
+        山东: ['images/LIFE/TRAVEL/CHINA/Shandong/sd.webp'],
+        上海: ['images/LIFE/TRAVEL/CHINA/Shanghai/sh.webp'],
+        山西: ['images/LIFE/TRAVEL/CHINA/Shanxi_Jin/sx.webp'],
+        陕西: ['images/LIFE/TRAVEL/CHINA/Shanxi/sx.webp'],
+        天津: ['images/LIFE/TRAVEL/CHINA/Tianjin/tj.webp'],
+        香港: ['images/LIFE/TRAVEL/CHINA/Xianggang/xg.webp'],
+        云南: ['images/LIFE/TRAVEL/CHINA/Yunnan/yn.webp'],
+        浙江: ['images/LIFE/TRAVEL/CHINA/Zhejiang/zj.webp']
     };
     const chinaProvincePinyinNames = {
         北京: 'Beijing',
@@ -1415,14 +1510,62 @@
 
                 let startRotation = projection.rotate();
                 let startPoint = [0, 0];
+                let pinchState = null;
+                const pinchListenerOptions = { passive: false, capture: true };
+
+                function getTouchDistance(touches) {
+                    const dx = touches[0].clientX - touches[1].clientX;
+                    const dy = touches[0].clientY - touches[1].clientY;
+                    return Math.sqrt(dx * dx + dy * dy);
+                }
+
+                function beginPinchZoom(event) {
+                    if (event.touches.length < 2) return;
+                    const distance = getTouchDistance(event.touches);
+                    if (!distance) return;
+
+                    pinchState = {
+                        distance,
+                        zoom: globeZoom
+                    };
+                    isDraggingGlobe = false;
+                    svg.classed('globe-dragging', false);
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                }
+
+                function updatePinchZoom(event) {
+                    if (!pinchState || event.touches.length < 2) return;
+                    const distance = getTouchDistance(event.touches);
+                    if (distance) {
+                        setGlobeZoom(pinchState.zoom * (distance / pinchState.distance));
+                    }
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                }
+
+                function endPinchZoom(event) {
+                    if (!pinchState) return;
+                    if (event.touches.length < 2) {
+                        pinchState = null;
+                        isDraggingGlobe = false;
+                        render();
+                    }
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                }
+
                 const dragBehavior = d3.drag()
+                    .filter(event => !event.touches || event.touches.length < 2)
                     .on('start', event => {
+                        if (pinchState) return;
                         isDraggingGlobe = true;
                         startRotation = projection.rotate();
                         startPoint = [event.x, event.y];
                         render();
                     })
                     .on('drag', event => {
+                        if (pinchState) return;
                         const sensitivity = 0.32;
                         const nextRotation = [
                             startRotation[0] + (event.x - startPoint[0]) * sensitivity,
@@ -1433,11 +1576,16 @@
                         render();
                     })
                     .on('end', () => {
+                        if (pinchState) return;
                         isDraggingGlobe = false;
                         render();
                     });
 
                 svg.call(dragBehavior);
+                globeElement.addEventListener('touchstart', beginPinchZoom, pinchListenerOptions);
+                globeElement.addEventListener('touchmove', updatePinchZoom, pinchListenerOptions);
+                globeElement.addEventListener('touchend', endPinchZoom, pinchListenerOptions);
+                globeElement.addEventListener('touchcancel', endPinchZoom, pinchListenerOptions);
                 svg.on('mousemove', event => {
                     if (isDraggingGlobe) {
                         setHoveredProvince(null);
