@@ -923,6 +923,47 @@ body {
 
 }
 
+@media (max-width: 768px), (pointer: coarse) {
+    .nav,
+    .nav.scrolled,
+    .stat-item,
+    .contact-link {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+
+    .loader-logo,
+    .hero-title,
+    .hero-subtitle,
+    .hero-scroll,
+    .section,
+    .visual-card,
+    .grid-item,
+    .stat-item,
+    .contact-link {
+        animation: none !important;
+        transition-duration: 0.18s !important;
+    }
+
+    .hero-overlay {
+        animation: none !important;
+    }
+
+    .bg-image,
+    .card-image img,
+    .grid-item img {
+        filter: none !important;
+    }
+
+    .visual-card,
+    .grid-item,
+    .stat-item,
+    .contact-link {
+        box-shadow: none !important;
+        transform: none !important;
+    }
+}
+
 /* ========== 语言切换 ========== */
 /* 默认显示中文，隐藏英文 */
 .lang-en {

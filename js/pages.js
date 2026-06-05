@@ -190,6 +190,42 @@
         ]);
     }
 
+    function getMobileImageWidth() {
+        if (!isConstrainedDevice()) return null;
+        if (window.matchMedia('(max-width: 480px)').matches) return 768;
+        return 1024;
+    }
+
+    function getMobileImageSrc(src) {
+        const width = getMobileImageWidth();
+        if (!width || !src || src.includes('/mobile/')) return src;
+
+        const [path, query = ''] = src.split('?');
+        const match = path.match(/^(\.?\/)?images\/(.+?)\.(?:webp|png|jpe?g)$/i);
+        if (!match) return src;
+
+        const prefix = match[1] || '';
+        const nextSrc = `${prefix}images/mobile/${width}/${match[2]}.webp`;
+        return query ? `${nextSrc}?${query}` : nextSrc;
+    }
+
+    function applyMobileImageSources(root = document) {
+        if (!isConstrainedDevice()) return;
+
+        root.querySelectorAll('img[src]').forEach(image => {
+            if (image.hasAttribute('srcset')) return;
+
+            const originalSrc = image.getAttribute('src');
+            const mobileSrc = getMobileImageSrc(originalSrc);
+            if (mobileSrc === originalSrc) return;
+
+            image.src = mobileSrc;
+            image.setAttribute('data-original-src', originalSrc);
+            image.loading = image.loading === 'eager' ? 'eager' : 'lazy';
+            image.decoding = 'async';
+        });
+    }
+
     const preloadedImages = new Set();
     const imagePreloadCache = new Map();
     let activeTransitionLoader = null;
@@ -197,9 +233,10 @@
     let activeTransitionTimeout = null;
 
     function preloadImage(src, options = {}) {
-        if (!src) return Promise.resolve(null);
-        if (imagePreloadCache.has(src)) {
-            const cached = imagePreloadCache.get(src);
+        const preloadSrc = getMobileImageSrc(src);
+        if (!preloadSrc) return Promise.resolve(null);
+        if (imagePreloadCache.has(preloadSrc)) {
+            const cached = imagePreloadCache.get(preloadSrc);
             if (!options.decode) return cached;
 
             return cached.then(image => {
@@ -222,15 +259,15 @@
                 resolve(image);
             };
             image.onerror = () => resolve(null);
-            image.src = src;
+            image.src = preloadSrc;
         });
 
-        imagePreloadCache.set(src, promise);
+        imagePreloadCache.set(preloadSrc, promise);
         return promise;
     }
 
     function preloadImages(urls, options = {}) {
-        const uniqueUrls = [...new Set((urls || []).filter(Boolean))];
+        const uniqueUrls = [...new Set((urls || []).filter(Boolean).map(getMobileImageSrc))];
         const tasks = uniqueUrls.map(src => {
             if (!preloadedImages.has(src)) {
                 preloadedImages.add(src);
@@ -247,6 +284,8 @@
 
         return Promise.all(tasks);
     }
+
+    applyMobileImageSources();
 
     function scheduleIdleTask(callback, timeout = 1600, delay = 350) {
         if (window.requestIdleCallback) {
@@ -346,7 +385,11 @@
         const urls = new Set();
         const imagePattern = /images\/[^,\s"')]+?\.(?:webp|png|jpe?g|gif|svg)/gi;
 
-        document.querySelectorAll('img[src]').forEach(image => urls.add(image.getAttribute('src')));
+        document.querySelectorAll('img[src]').forEach(image => {
+            if (!image.hasAttribute('srcset')) {
+                urls.add(image.getAttribute('src'));
+            }
+        });
         document.querySelectorAll('[data-carousel-photos], [data-carousel-photos-en], [data-carousel-link-photo], [data-carousel-link-photo-en], [data-photo], [data-photos]').forEach(element => {
             [...element.attributes].forEach(attribute => {
                 let match;
@@ -700,6 +743,7 @@
             currentIndex = (index + photos.length) % photos.length;
             const targetIndex = currentIndex;
             const targetSrc = photos[targetIndex];
+            const displaySrc = getMobileImageSrc(targetSrc);
             const token = ++renderToken;
 
             if (isConstrainedDevice()) {
@@ -714,7 +758,7 @@
                 }
 
                 image.style.opacity = '0';
-                image.src = targetSrc;
+                image.src = displaySrc;
                 image.alt = `${carouselAlt} ${targetIndex + 1}`;
                 carousel.classList.toggle('is-portrait', nextImage.naturalHeight > nextImage.naturalWidth);
                 carousel.classList.toggle('is-landscape', nextImage.naturalWidth >= nextImage.naturalHeight);
@@ -982,6 +1026,7 @@
 
         currentTravelPhotoIndex = (index + currentTravelPhotos.length) % currentTravelPhotos.length;
         const photoSrc = currentTravelPhotos[currentTravelPhotoIndex];
+        const displaySrc = getMobileImageSrc(photoSrc);
         const title = document.getElementById('travelPhotoTitle')?.innerText || 'Travel photo';
         const caption = `${title} · ${currentTravelPhotoIndex + 1}/${currentTravelPhotos.length}`;
         const token = ++travelPhotoRenderToken;
@@ -998,13 +1043,13 @@
             if (photo) {
                 photo.loading = 'eager';
                 photo.decoding = 'async';
-                photo.src = photoSrc;
+                photo.src = displaySrc;
                 photo.alt = caption;
             }
             if (lightboxImage) {
                 lightboxImage.loading = 'eager';
                 lightboxImage.decoding = 'async';
-                lightboxImage.src = photoSrc;
+                lightboxImage.src = displaySrc;
                 lightboxImage.alt = caption;
             }
         });

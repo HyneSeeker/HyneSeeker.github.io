@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="个人主页：场域、留白、律动与交织。">
     <title>原点 | Personal Homepage</title>
-    <link rel="preload" as="image" href="images/research.webp" fetchpriority="high">
-    <link rel="preload" as="image" href="images/spherex.webp">
-    <link rel="stylesheet" href="css/style.css?v=image-warm-20260605">
+    <link rel="preload" as="image" href="images/mobile/1024/research.webp" media="(max-width: 768px)" fetchpriority="high">
+    <link rel="preload" as="image" href="images/research.webp" media="(min-width: 769px)" fetchpriority="high">
+    <link rel="preload" as="image" href="images/mobile/768/spherex.webp" media="(max-width: 768px)">
+    <link rel="preload" as="image" href="images/spherex.webp" media="(min-width: 769px)">
+    <link rel="stylesheet" href="css/style.css?v=mobile-assets3-20260605">
 </head>
 <body data-lang="zh">
     <!-- 加载屏 -->
@@ -79,7 +81,7 @@
     <!-- 科研区域 -->
     <section class="section section-research" id="research">
         <div class="section-bg">
-            <img loading="eager" decoding="async" fetchpriority="high" src="images/research.webp" alt="Research Background" class="bg-image">
+            <img loading="eager" decoding="async" fetchpriority="high" src="images/research.webp" srcset="images/mobile/480/research.webp 480w, images/mobile/768/research.webp 768w, images/mobile/1024/research.webp 1024w, images/research.webp 1535w" sizes="(max-width: 768px) 100vw, 100vw" alt="Research Background" class="bg-image">
         </div>
         <div class="section-container">
             <div class="section-header">
@@ -104,7 +106,7 @@
                 <div class="content-visual">
                     <div class="visual-card research-portrait">
                         <div class="card-image">
-                            <img loading="lazy" decoding="async" src="images/spherex.webp" alt="SPHEREx telescope concept">
+                            <img loading="eager" decoding="async" fetchpriority="high" src="images/spherex.webp" srcset="images/mobile/480/spherex.webp 480w, images/mobile/768/spherex.webp 768w, images/mobile/1024/spherex.webp 1024w, images/spherex.webp 1614w" sizes="(max-width: 768px) 86vw, 420px" alt="SPHEREx telescope concept">
                         </div>
                         <div class="card-info">
                             <span class="lang-zh">循迹信号</span>
@@ -121,7 +123,7 @@
     <!-- 生活区域 -->
     <section class="section section-life" id="life">
         <div class="section-bg">
-            <img loading="lazy" decoding="async" src="images/life-bg.webp" alt="Life Background" class="bg-image">
+            <img loading="lazy" decoding="async" src="images/life-bg.webp" srcset="images/mobile/480/life-bg.webp 480w, images/mobile/768/life-bg.webp 768w, images/mobile/1024/life-bg.webp 1024w, images/life-bg.webp 1920w" sizes="100vw" alt="Life Background" class="bg-image">
         </div>
         <div class="section-container">
             <div class="section-header">
@@ -136,7 +138,7 @@
                 <div class="content-visual">
                     <div class="visual-card life-portrait">
                         <div class="card-image">
-                            <img loading="lazy" decoding="async" src="images/life-map.webp" alt="Life memory">
+                            <img loading="lazy" decoding="async" src="images/life-map.webp" srcset="images/mobile/480/life-map.webp 480w, images/mobile/768/life-map.webp 768w, images/mobile/1024/life-map.webp 1024w, images/life-map.webp 1200w" sizes="(max-width: 768px) 86vw, 420px" alt="Life memory">
                         </div>
                     </div>
                 </div>
@@ -157,7 +159,7 @@
     <!-- 运动区域 -->
     <section class="section section-sports" id="sports">
         <div class="section-bg">
-            <img loading="lazy" decoding="async" src="images/sports.webp" alt="Sports Background" class="bg-image">
+            <img loading="lazy" decoding="async" src="images/sports.webp" srcset="images/mobile/480/sports.webp 480w, images/mobile/768/sports.webp 768w, images/mobile/1024/sports.webp 1024w, images/sports.webp 1920w" sizes="100vw" alt="Sports Background" class="bg-image">
         </div>
         <div class="section-container">
             <div class="section-header">
@@ -205,7 +207,7 @@
     <!-- 联系区域 -->
     <section class="section section-contact" id="contact">
         <div class="section-bg">
-            <img loading="lazy" decoding="async" src="images/jiaozhi.webp" alt="About Background" class="bg-image">
+            <img loading="lazy" decoding="async" src="images/jiaozhi.webp" srcset="images/mobile/480/jiaozhi.webp 480w, images/mobile/768/jiaozhi.webp 768w, images/mobile/1024/jiaozhi.webp 1024w, images/jiaozhi.webp 1536w" sizes="100vw" alt="About Background" class="bg-image">
         </div>
         <div class="section-container">
             <div class="contact-content">
@@ -255,6 +257,6 @@
         </div>
     </footer>
 
-    <script src="js/main.js?v=image-warm-20260605"></script>
+    <script src="js/main.js?v=mobile-assets3-20260605"></script>
 </body>
 </html>

@@ -3601,3 +3601,60 @@ body[data-lang="en"] .event-list .lang-en {
         right: 14px;
     }
 }
+
+@media (max-width: 768px), (pointer: coarse) {
+    .page-hero-overlay,
+    .page-hero-title,
+    .page-hero-subtitle,
+    .page-hero-scroll,
+    .content-item,
+    .research-toc-nav,
+    .travel-info-card,
+    .travel-map-panel,
+    .globe-shell,
+    .photo-lightbox,
+    .sports-carousel,
+    .sports-carousel-button,
+    .multi-sport-stat,
+    .about-extra-panel {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        animation: none !important;
+    }
+
+    .hero-bg-image,
+    .research-image,
+    .sports-photo,
+    .travel-photo,
+    .lightbox-image,
+    .china-map-background,
+    .globe-svg,
+    .country-shape,
+    .province-shape,
+    .globe-country,
+    .globe-province {
+        filter: none !important;
+    }
+
+    .content-item,
+    .travel-map-panel,
+    .globe-shell,
+    .sports-carousel,
+    .research-toc-nav,
+    .photo-lightbox,
+    .multi-sport-stat,
+    .about-extra-panel {
+        box-shadow: none !important;
+    }
+
+    .content-item,
+    .sports-carousel-image,
+    .travel-photo,
+    .lightbox-image,
+    .globe-country,
+    .globe-province,
+    .province-shape,
+    .country-shape {
+        transition-duration: 0.12s !important;
+    }
+}

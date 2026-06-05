@@ -185,12 +185,49 @@
         ]);
     }
 
+    function getMobileImageWidth() {
+        if (!isConstrainedDevice()) return null;
+        if (window.matchMedia('(max-width: 480px)').matches) return 768;
+        return 1024;
+    }
+
+    function getMobileImageSrc(src) {
+        const width = getMobileImageWidth();
+        if (!width || !src || src.includes('/mobile/')) return src;
+
+        const [path, query = ''] = src.split('?');
+        const match = path.match(/^(\.?\/)?images\/(.+?)\.(?:webp|png|jpe?g)$/i);
+        if (!match) return src;
+
+        const prefix = match[1] || '';
+        const nextSrc = `${prefix}images/mobile/${width}/${match[2]}.webp`;
+        return query ? `${nextSrc}?${query}` : nextSrc;
+    }
+
+    function applyMobileImageSources(root = document) {
+        if (!isConstrainedDevice()) return;
+
+        root.querySelectorAll('img[src]').forEach(image => {
+            if (image.hasAttribute('srcset')) return;
+
+            const originalSrc = image.getAttribute('src');
+            const mobileSrc = getMobileImageSrc(originalSrc);
+            if (mobileSrc === originalSrc) return;
+
+            image.src = mobileSrc;
+            image.setAttribute('data-original-src', originalSrc);
+            image.loading = image.loading === 'eager' ? 'eager' : 'lazy';
+            image.decoding = 'async';
+        });
+    }
+
     const preloadedImages = new Set();
     const imagePreloadCache = new Map();
 
     function preloadImage(src, options = {}) {
-        if (!src) return Promise.resolve(null);
-        if (imagePreloadCache.has(src)) return imagePreloadCache.get(src);
+        const preloadSrc = getMobileImageSrc(src);
+        if (!preloadSrc) return Promise.resolve(null);
+        if (imagePreloadCache.has(preloadSrc)) return imagePreloadCache.get(preloadSrc);
 
         const promise = new Promise(resolve => {
             const image = new Image();
@@ -204,15 +241,15 @@
                 resolve(image);
             };
             image.onerror = () => resolve(null);
-            image.src = src;
+            image.src = preloadSrc;
         });
 
-        imagePreloadCache.set(src, promise);
+        imagePreloadCache.set(preloadSrc, promise);
         return promise;
     }
 
     function preloadImages(urls, options = {}) {
-        const uniqueUrls = [...new Set((urls || []).filter(Boolean))];
+        const uniqueUrls = [...new Set((urls || []).filter(Boolean).map(getMobileImageSrc))];
         const tasks = uniqueUrls.map(src => {
             if (!preloadedImages.has(src)) {
                 preloadedImages.add(src);
@@ -230,11 +267,17 @@
         return Promise.all(tasks);
     }
 
+    applyMobileImageSources();
+
     function collectDocumentImageUrls() {
         const urls = new Set();
         const imagePattern = /images\/[^,\s"')]+?\.(?:webp|png|jpe?g|gif|svg)/gi;
 
-        document.querySelectorAll('img[src]').forEach(image => urls.add(image.getAttribute('src')));
+        document.querySelectorAll('img[src]').forEach(image => {
+            if (!image.hasAttribute('srcset')) {
+                urls.add(image.getAttribute('src'));
+            }
+        });
         document.querySelectorAll('[data-carousel-photos], [data-carousel-photos-en], [data-carousel-link-photo], [data-carousel-link-photo-en], [data-photo], [data-photos]').forEach(element => {
             [...element.attributes].forEach(attribute => {
                 let match;
@@ -531,34 +574,38 @@
     });
 
     // ===== 鼠标跟随效果 =====
-    let mouseX = 0, mouseY = 0;
-    let currentX = 0, currentY = 0;
+    const enablePointerEffects = !isConstrainedDevice() && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
-    document.addEventListener('mousemove', (e) => {
-        mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
-        mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-    });
+    if (enablePointerEffects) {
+        let mouseX = 0, mouseY = 0;
+        let currentX = 0, currentY = 0;
 
-    function animateCursor() {
-        currentX += (mouseX - currentX) * 0.05;
-        currentY += (mouseY - currentY) * 0.05;
-
-        // 对卡片应用微妙的倾斜效果
-        document.querySelectorAll('.visual-card, .grid-item, .stat-item').forEach(card => {
-            const rect = card.getBoundingClientRect();
-            const cardCenterX = rect.left + rect.width / 2;
-            const cardCenterY = rect.top + rect.height / 2;
-
-            const angleX = (window.innerHeight / 2 - cardCenterY) * currentY * 0.01;
-            const angleY = (cardCenterX - window.innerWidth / 2) * currentX * 0.01;
-
-            card.style.transform = `perspective(1000px) rotateX(${angleX}deg) rotateY(${angleY}deg)`;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+            mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
         });
 
-        requestAnimationFrame(animateCursor);
-    }
+        function animateCursor() {
+            currentX += (mouseX - currentX) * 0.05;
+            currentY += (mouseY - currentY) * 0.05;
 
-    animateCursor();
+            // 对卡片应用微妙的倾斜效果
+            document.querySelectorAll('.visual-card, .grid-item, .stat-item').forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const cardCenterX = rect.left + rect.width / 2;
+                const cardCenterY = rect.top + rect.height / 2;
+
+                const angleX = (window.innerHeight / 2 - cardCenterY) * currentY * 0.01;
+                const angleY = (cardCenterX - window.innerWidth / 2) * currentX * 0.01;
+
+                card.style.transform = `perspective(1000px) rotateX(${angleX}deg) rotateY(${angleY}deg)`;
+            });
+
+            requestAnimationFrame(animateCursor);
+        }
+
+        animateCursor();
+    }
 
     // ===== 视频处理 =====
     const heroVideo = document.getElementById('heroVideo');

@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>留白 | Life</title>
-    <link rel="stylesheet" href="css/style.css?v=image-warm-20260605">
-    <link rel="stylesheet" href="css/pages.css?v=image-warm-20260605">
+    <link rel="preload" as="image" href="images/mobile/1024/LIFE/life.webp" media="(max-width: 768px)" fetchpriority="high">
+    <link rel="preload" as="image" href="images/LIFE/life.webp" media="(min-width: 769px)" fetchpriority="high">
+    <link rel="stylesheet" href="css/style.css?v=mobile-assets3-20260605">
+    <link rel="stylesheet" href="css/pages.css?v=mobile-assets3-20260605">
 </head>
 <body data-lang="zh">
     <!-- 导航栏 -->
@@ -41,7 +43,7 @@
     <!-- 顶部大图区域 -->
     <section class="page-hero" id="pageHero">
         <div class="page-hero-bg">
-            <img src="images/LIFE/life.webp" alt="Life Background" class="hero-bg-image">
+            <img loading="eager" decoding="async" fetchpriority="high" src="images/LIFE/life.webp" srcset="images/mobile/480/LIFE/life.webp 480w, images/mobile/768/LIFE/life.webp 768w, images/mobile/1024/LIFE/life.webp 1024w, images/LIFE/life.webp 1920w" sizes="100vw" alt="Life Background" class="hero-bg-image">
         </div>
         <div class="page-hero-overlay"></div>
         <div class="page-hero-content">
@@ -432,11 +434,11 @@
         </div>
     </footer>
 
-    <script src="js/main.js?v=image-warm-20260605"></script>
+    <script src="js/main.js?v=mobile-assets3-20260605"></script>
     <script src="js/vendor/d3.min.js"></script>
     <script src="js/vendor/topojson-client.min.js"></script>
     <script src="data/countries-110m.js"></script>
     <script src="data/china-provinces.js"></script>
-    <script src="js/pages.js?v=image-warm-20260605"></script>
+    <script src="js/pages.js?v=mobile-assets3-20260605"></script>
 </body>
 </html>
