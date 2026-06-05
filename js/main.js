@@ -185,14 +185,35 @@
         ]);
     }
 
-    function getMobileImageWidth() {
+    const fullBleedMobileImages = new Set([
+        'images/research.webp',
+        'images/life-bg.webp',
+        'images/sports.webp',
+        'images/jiaozhi.webp',
+        'images/RESEARCH/research.webp',
+        'images/LIFE/life.webp',
+        'images/MOTION/sports.webp',
+        'images/ABOUT/jiaozhi.webp'
+    ]);
+
+    function getNormalizedImagePath(src) {
+        if (!src) return '';
+        return src.split('?')[0].replace(/^\.\//, '');
+    }
+
+    function isFullBleedMobileImage(src) {
+        return fullBleedMobileImages.has(getNormalizedImagePath(src));
+    }
+
+    function getMobileImageWidth(src) {
         if (!isConstrainedDevice()) return null;
+        if (isFullBleedMobileImage(src)) return 1024;
         if (window.matchMedia('(max-width: 480px)').matches) return 768;
         return 1024;
     }
 
     function getMobileImageSrc(src) {
-        const width = getMobileImageWidth();
+        const width = getMobileImageWidth(src);
         if (!width || !src || src.includes('/mobile/')) return src;
 
         const [path, query = ''] = src.split('?');
@@ -233,6 +254,9 @@
             const image = new Image();
             image.decoding = 'async';
             image.loading = 'eager';
+            if (options.fetchPriority) {
+                image.fetchPriority = options.fetchPriority;
+            }
             image.onload = () => {
                 if (options.decode && image.decode) {
                     image.decode().then(() => resolve(image), () => resolve(image));
@@ -251,13 +275,18 @@
     function preloadImages(urls, options = {}) {
         const uniqueUrls = [...new Set((urls || []).filter(Boolean).map(getMobileImageSrc))];
         const tasks = uniqueUrls.map(src => {
-            if (!preloadedImages.has(src)) {
-                preloadedImages.add(src);
+            const linkRel = options.linkRel || 'prefetch';
+            const preloadKey = `${linkRel}:${src}`;
+            if (!preloadedImages.has(preloadKey)) {
+                preloadedImages.add(preloadKey);
 
                 const link = document.createElement('link');
-                link.rel = 'prefetch';
+                link.rel = linkRel;
                 link.as = 'image';
                 link.href = src;
+                if (options.fetchPriority) {
+                    link.fetchPriority = options.fetchPriority;
+                }
                 document.head.appendChild(link);
             }
 
@@ -398,12 +427,23 @@
                 const urls = isConstrainedDevice() ? getCriticalTransitionPreloadUrls(targetUrl) : getTransitionPreloadUrls(targetUrl);
                 preloadImages(urls);
             }, { once: true });
+            link.addEventListener('pointerdown', () => {
+                const targetUrl = link.getAttribute('href') || '';
+                preloadImages(getCriticalTransitionPreloadUrls(targetUrl), {
+                    linkRel: 'preload',
+                    fetchPriority: 'high'
+                });
+            }, { once: true, passive: true });
 
             link.addEventListener('click', function(e) {
                 if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
                 e.preventDefault();
                 const targetUrl = this.getAttribute('href');
-                const criticalPreload = preloadImages(getCriticalTransitionPreloadUrls(targetUrl), { decode: true });
+                const criticalPreload = preloadImages(getCriticalTransitionPreloadUrls(targetUrl), {
+                    decode: true,
+                    linkRel: 'preload',
+                    fetchPriority: 'high'
+                });
                 const restUrls = getTransitionPreloadUrls(targetUrl).filter(src => !getCriticalTransitionPreloadUrls(targetUrl).includes(src));
                 if (!isConstrainedDevice()) {
                     preloadImages(restUrls);
@@ -411,7 +451,7 @@
 
                 // 统一使用 1000ms
                 customLoader(1000, () => {
-                    waitBriefly(criticalPreload).then(() => {
+                    waitBriefly(criticalPreload, isConstrainedDevice() ? 1200 : 650).then(() => {
                         window.location.href = targetUrl;
                     });
                 });
