@@ -218,6 +218,10 @@ html {
     white-space: nowrap;
 }
 
+.lang-en-mobile {
+    display: none;
+}
+
 .research-toc-nav {
     display: grid;
     gap: 10px;
@@ -3250,7 +3254,7 @@ body[data-lang="en"] .event-list .lang-en {
     }
 
     .research-toc-nav {
-        gap: 12px;
+        gap: 8px;
         width: 100%;
         min-width: 0;
         overflow-x: auto;
@@ -3263,9 +3267,22 @@ body[data-lang="en"] .event-list .lang-en {
     }
 
     .research-toc-nav button {
+        grid-template-columns: max-content;
         flex: 0 0 auto;
         font-size: 0.72rem;
-        letter-spacing: 1.5px;
+        letter-spacing: 1px;
+        min-height: 36px;
+        padding: 8px 11px;
+        border-left: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    body[data-lang="en"] .research-toc-nav .lang-en {
+        display: none;
+    }
+
+    body[data-lang="en"] .research-toc-nav .lang-en-mobile {
+        display: inline;
     }
 
     .content-item {

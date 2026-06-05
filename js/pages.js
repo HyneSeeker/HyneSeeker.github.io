@@ -63,32 +63,157 @@
         ]
     };
 
+    const expandedTransitionImagePreloads = {
+        'research.html': [
+            'images/RESEARCH/pulsar_searching.webp',
+            'images/RESEARCH/frb_rate.png'
+        ],
+        'life.html': [
+            'images/LIFE/MOTOR/motor2.webp',
+            'images/LIFE/MOTOR/motor3.webp',
+            'images/LIFE/MOTOR/motor4.webp',
+            'images/LIFE/ART/dingprize-en.webp',
+            'images/LIFE/ART/art1.webp',
+            'images/LIFE/ART/art2.png',
+            'images/LIFE/ART/art3.webp',
+            'images/LIFE/ART/art4.webp',
+            'images/LIFE/TRAVEL/France/fr.webp',
+            'images/LIFE/TRAVEL/Italy/it.webp',
+            'images/LIFE/TRAVEL/NewZealand/nz.webp',
+            'images/LIFE/TRAVEL/Qatar/qatar.webp',
+            'images/LIFE/TRAVEL/CHINA/Anhui/ah.webp',
+            'images/LIFE/TRAVEL/CHINA/Aomen/am.webp',
+            'images/LIFE/TRAVEL/CHINA/Beijing/bj.webp',
+            'images/LIFE/TRAVEL/CHINA/Chongqing/cq.webp',
+            'images/LIFE/TRAVEL/CHINA/Guangdong/gd.webp',
+            'images/LIFE/TRAVEL/CHINA/Guizhou/gz.webp',
+            'images/LIFE/TRAVEL/CHINA/Hainan/hn.webp',
+            'images/LIFE/TRAVEL/CHINA/Hebei/hb.webp',
+            'images/LIFE/TRAVEL/CHINA/Henan/hn.webp',
+            'images/LIFE/TRAVEL/CHINA/Hubei/hb.webp',
+            'images/LIFE/TRAVEL/CHINA/Hunan/hn.webp',
+            'images/LIFE/TRAVEL/CHINA/Jiangsu/js.webp',
+            'images/LIFE/TRAVEL/CHINA/Jiangxi/jx.webp',
+            'images/LIFE/TRAVEL/CHINA/Jilin/jl.webp',
+            'images/LIFE/TRAVEL/CHINA/Liaoning/ln.webp',
+            'images/LIFE/TRAVEL/CHINA/Neimenggu/nm.webp',
+            'images/LIFE/TRAVEL/CHINA/Ningxia/nx.webp',
+            'images/LIFE/TRAVEL/CHINA/SIchuan/sc.webp',
+            'images/LIFE/TRAVEL/CHINA/Shandong/sd.webp',
+            'images/LIFE/TRAVEL/CHINA/Shanghai/sh.webp',
+            'images/LIFE/TRAVEL/CHINA/Shanxi_Jin/sx.webp',
+            'images/LIFE/TRAVEL/CHINA/Shanxi/sx.webp',
+            'images/LIFE/TRAVEL/CHINA/Tianjin/tj.webp',
+            'images/LIFE/TRAVEL/CHINA/Xianggang/xg.webp',
+            'images/LIFE/TRAVEL/CHINA/Yunnan/yn.webp',
+            'images/LIFE/TRAVEL/CHINA/Zhejiang/zj.webp'
+        ],
+        'motion.html': [
+            'images/MOTION/OR/or2.webp',
+            'images/MOTION/OR/or3.webp',
+            'images/MOTION/OR/or4.webp',
+            'images/MOTION/OR/or5.webp',
+            'images/MOTION/OR/or6.webp',
+            'images/MOTION/OR/or7.webp',
+            'images/MOTION/OR/or8.webp',
+            'images/MOTION/TRACK/track2.webp',
+            'images/MOTION/TRACK/track3.webp',
+            'images/MOTION/TRACK/track4.webp',
+            'images/MOTION/TRACK/track5.webp',
+            'images/MOTION/TRACK/track6.webp',
+            'images/MOTION/TRACK/track7.webp',
+            'images/MOTION/TRACK/track8.webp',
+            'images/MOTION/TRACK/track9.webp'
+        ],
+        'index.html': [
+            'images/jiaozhi.webp'
+        ]
+    };
+
+    Object.entries(expandedTransitionImagePreloads).forEach(([page, urls]) => {
+        transitionImagePreloads[page] = [...new Set([...(transitionImagePreloads[page] || []), ...urls])];
+    });
+
     function getTransitionPreloadUrls(targetUrl) {
         const page = targetUrl.split('#')[0].split('?')[0].split('/').pop() || 'index.html';
         return transitionImagePreloads[page] || [];
     }
 
     const preloadedImages = new Set();
+    const imagePreloadCache = new Map();
     let activeTransitionLoader = null;
     let activeTransitionInterval = null;
     let activeTransitionTimeout = null;
 
-    function preloadImages(urls) {
-        urls.forEach(src => {
-            if (preloadedImages.has(src)) return;
-            preloadedImages.add(src);
+    function preloadImage(src, options = {}) {
+        if (!src) return Promise.resolve(null);
+        if (imagePreloadCache.has(src)) return imagePreloadCache.get(src);
 
+        const promise = new Promise(resolve => {
             const image = new Image();
             image.decoding = 'async';
+            image.loading = 'eager';
+            image.onload = () => {
+                if (options.decode && image.decode) {
+                    image.decode().then(() => resolve(image), () => resolve(image));
+                    return;
+                }
+                resolve(image);
+            };
+            image.onerror = () => resolve(null);
             image.src = src;
-
-            const link = document.createElement('link');
-            link.rel = 'prefetch';
-            link.as = 'image';
-            link.href = src;
-            document.head.appendChild(link);
         });
+
+        imagePreloadCache.set(src, promise);
+        return promise;
     }
+
+    function preloadImages(urls, options = {}) {
+        const uniqueUrls = [...new Set((urls || []).filter(Boolean))];
+        const tasks = uniqueUrls.map(src => {
+            if (!preloadedImages.has(src)) {
+                preloadedImages.add(src);
+
+                const link = document.createElement('link');
+                link.rel = 'prefetch';
+                link.as = 'image';
+                link.href = src;
+                document.head.appendChild(link);
+            }
+
+            return preloadImage(src, options);
+        });
+
+        return Promise.all(tasks);
+    }
+
+    function collectDocumentImageUrls() {
+        const urls = new Set();
+        const imagePattern = /images\/[^,\s"')]+?\.(?:webp|png|jpe?g|gif|svg)/gi;
+
+        document.querySelectorAll('img[src]').forEach(image => urls.add(image.getAttribute('src')));
+        document.querySelectorAll('[data-carousel-photos], [data-carousel-photos-en], [data-carousel-link-photo], [data-carousel-link-photo-en], [data-photo], [data-photos]').forEach(element => {
+            [...element.attributes].forEach(attribute => {
+                let match;
+                while ((match = imagePattern.exec(attribute.value))) {
+                    urls.add(match[0]);
+                }
+                imagePattern.lastIndex = 0;
+            });
+        });
+
+        return [...urls];
+    }
+
+    function warmCurrentPageImages() {
+        preloadImages(collectDocumentImageUrls(), { decode: true });
+    }
+
+    const scheduleImageWarmup = window.requestIdleCallback
+        ? () => window.requestIdleCallback(warmCurrentPageImages, { timeout: 1600 })
+        : () => window.setTimeout(warmCurrentPageImages, 350);
+
+    window.addEventListener('load', scheduleImageWarmup, { once: true });
 
     function clearPageTransition() {
         if (activeTransitionInterval) {
@@ -124,7 +249,7 @@
         link.addEventListener('click', function(e) {
             if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
             const targetUrl = this.getAttribute('href');
-            preloadImages(getTransitionPreloadUrls(targetUrl));
+            const transitionPreload = preloadImages(getTransitionPreloadUrls(targetUrl), { decode: true });
 
             // 返回主页的链接直接跳转，由主页 main.js 处理加载动画
             if (targetUrl.includes('index.html')) {
@@ -183,7 +308,9 @@
                     clearInterval(activeTransitionInterval);
                     activeTransitionInterval = null;
                     activeTransitionTimeout = setTimeout(() => {
-                        window.location.href = targetUrl;
+                        transitionPreload.finally(() => {
+                            window.location.href = targetUrl;
+                        });
                     }, 50);
                 } else {
                     if (progressBar) progressBar.style.width = progress + '%';
@@ -373,6 +500,9 @@
         let photos = getCarouselPhotos();
 
         if (!image || photos.length === 0) return;
+        image.loading = 'eager';
+        image.decoding = 'async';
+        preloadImages(photos, { decode: true });
 
         let currentIndex = 0;
         let renderToken = 0;
@@ -396,9 +526,12 @@
             const targetSrc = photos[targetIndex];
             const token = ++renderToken;
 
-            const nextImage = new Image();
-            nextImage.onload = () => {
+            preloadImage(targetSrc, { decode: true }).then(nextImage => {
                 if (token !== renderToken) return;
+                if (!nextImage) {
+                    image.style.opacity = '1';
+                    return;
+                }
 
                 image.style.opacity = '0';
                 image.src = targetSrc;
@@ -411,12 +544,10 @@
                         image.style.opacity = '1';
                     }
                 });
-            };
-            nextImage.onerror = () => {
+            }).catch(() => {
                 if (token !== renderToken) return;
                 image.style.opacity = '1';
-            };
-            nextImage.src = targetSrc;
+            });
 
             if (imageLink) {
                 const hasLink = Boolean(linkedUrl && linkedPhotos.includes(targetSrc));
@@ -462,6 +593,7 @@
         window.addEventListener('languagechange', () => {
             photos = getCarouselPhotos();
             if (photos.length === 0) return;
+            preloadImages(photos, { decode: true });
             currentIndex = Math.min(currentIndex, photos.length - 1);
             renderDots();
             renderCarousel(currentIndex);
@@ -605,6 +737,18 @@
     let currentTravelPhotos = [...defaultTravelPhotos];
     let currentTravelPhotoIndex = 0;
     let travelPhotoTimer = null;
+    let travelPhotoRenderToken = 0;
+    const allTravelPhotoUrls = [
+        ...defaultTravelPhotos,
+        ...Object.values(countryTravelPhotos).flat(),
+        ...Object.values(chinaProvinceTravelPhotos).flat()
+    ];
+
+    const scheduleTravelPhotoWarmup = window.requestIdleCallback
+        ? () => window.requestIdleCallback(() => preloadImages(allTravelPhotoUrls, { decode: true }), { timeout: 2000 })
+        : () => window.setTimeout(() => preloadImages(allTravelPhotoUrls, { decode: true }), 500);
+
+    scheduleTravelPhotoWarmup();
 
     function getTravelPhotos(place) {
         if (!place?.dataset.photos) {
@@ -642,19 +786,29 @@
         const photoSrc = currentTravelPhotos[currentTravelPhotoIndex];
         const title = document.getElementById('travelPhotoTitle')?.innerText || 'Travel photo';
         const caption = `${title} · ${currentTravelPhotoIndex + 1}/${currentTravelPhotos.length}`;
+        const token = ++travelPhotoRenderToken;
 
-        if (photo) {
-            photo.src = photoSrc;
-            photo.alt = caption;
-        }
-        if (lightboxImage) {
-            lightboxImage.src = photoSrc;
-            lightboxImage.alt = caption;
-        }
         if (lightboxCaption) {
             lightboxCaption.textContent = caption;
         }
         renderTravelDots();
+
+        preloadImage(photoSrc, { decode: true }).then(() => {
+            if (token !== travelPhotoRenderToken) return;
+
+            if (photo) {
+                photo.loading = 'eager';
+                photo.decoding = 'async';
+                photo.src = photoSrc;
+                photo.alt = caption;
+            }
+            if (lightboxImage) {
+                lightboxImage.loading = 'eager';
+                lightboxImage.decoding = 'async';
+                lightboxImage.src = photoSrc;
+                lightboxImage.alt = caption;
+            }
+        });
     }
 
     function moveTravelPhoto(delta) {
@@ -686,6 +840,7 @@
         caption.textContent = captionText;
         currentTravelPhotos = getTravelPhotos(place);
         currentTravelPhotoIndex = 0;
+        preloadImages(currentTravelPhotos, { decode: true });
         showTravelPhoto(0);
         restartTravelPhotoTimer();
     }
@@ -706,6 +861,7 @@
 
         currentTravelPhotos = [...defaultTravelPhotos];
         currentTravelPhotoIndex = 0;
+        preloadImages(currentTravelPhotos, { decode: true });
         showTravelPhoto(0);
         restartTravelPhotoTimer();
     }
