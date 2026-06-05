@@ -134,9 +134,60 @@
         transitionImagePreloads[page] = [...new Set([...(transitionImagePreloads[page] || []), ...urls])];
     });
 
+    const criticalTransitionImagePreloads = {
+        'research.html': [
+            'images/RESEARCH/research.webp',
+            'images/RESEARCH/dart_catalog.webp',
+            'images/RESEARCH/still_working.webp',
+            'images/RESEARCH/spherex.webp'
+        ],
+        'life.html': [
+            'images/LIFE/life.webp',
+            'images/LIFE/ChinaMap1-dark.webp',
+            'images/LIFE/TRAVEL/beyond.webp',
+            'images/LIFE/MOTOR/motor1.webp',
+            'images/LIFE/ART/dingprize.webp'
+        ],
+        'motion.html': [
+            'images/MOTION/sports.webp',
+            'images/MOTION/OR/or1.webp',
+            'images/MOTION/bilibili.webp',
+            'images/MOTION/TRACK/track1.webp'
+        ],
+        'about.html': [
+            'images/ABOUT/jiaozhi.webp',
+            'images/ABOUT/id.webp'
+        ],
+        'index.html': [
+            'images/research.webp',
+            'images/spherex.webp',
+            'images/life-bg.webp',
+            'images/life-map.webp',
+            'images/sports.webp'
+        ]
+    };
+
     function getTransitionPreloadUrls(targetUrl) {
         const page = targetUrl.split('#')[0].split('?')[0].split('/').pop() || 'index.html';
         return transitionImagePreloads[page] || [];
+    }
+
+    function getCriticalTransitionPreloadUrls(targetUrl) {
+        const page = targetUrl.split('#')[0].split('?')[0].split('/').pop() || 'index.html';
+        return criticalTransitionImagePreloads[page] || getTransitionPreloadUrls(targetUrl).slice(0, 4);
+    }
+
+    function isConstrainedDevice() {
+        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        return window.matchMedia('(max-width: 768px), (pointer: coarse)').matches ||
+            Boolean(connection && (connection.saveData || /2g/.test(connection.effectiveType || '')));
+    }
+
+    function waitBriefly(promise, timeout = 650) {
+        return Promise.race([
+            promise,
+            new Promise(resolve => window.setTimeout(resolve, timeout))
+        ]);
     }
 
     const preloadedImages = new Set();
@@ -206,6 +257,7 @@
     }
 
     function warmCurrentPageImages() {
+        if (isConstrainedDevice()) return;
         preloadImages(collectDocumentImageUrls(), { decode: true });
     }
 
@@ -240,16 +292,24 @@
     // ===== 页面切换过渡 =====
     document.querySelectorAll('a[href$=".html"]').forEach(link => {
         link.addEventListener('pointerenter', () => {
-            preloadImages(getTransitionPreloadUrls(link.getAttribute('href') || ''));
+            const targetUrl = link.getAttribute('href') || '';
+            const urls = isConstrainedDevice() ? getCriticalTransitionPreloadUrls(targetUrl) : getTransitionPreloadUrls(targetUrl);
+            preloadImages(urls);
         }, { once: true });
         link.addEventListener('focus', () => {
-            preloadImages(getTransitionPreloadUrls(link.getAttribute('href') || ''));
+            const targetUrl = link.getAttribute('href') || '';
+            const urls = isConstrainedDevice() ? getCriticalTransitionPreloadUrls(targetUrl) : getTransitionPreloadUrls(targetUrl);
+            preloadImages(urls);
         }, { once: true });
 
         link.addEventListener('click', function(e) {
             if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
             const targetUrl = this.getAttribute('href');
-            const transitionPreload = preloadImages(getTransitionPreloadUrls(targetUrl), { decode: true });
+            const criticalPreload = preloadImages(getCriticalTransitionPreloadUrls(targetUrl), { decode: true });
+            const restUrls = getTransitionPreloadUrls(targetUrl).filter(src => !getCriticalTransitionPreloadUrls(targetUrl).includes(src));
+            if (!isConstrainedDevice()) {
+                preloadImages(restUrls);
+            }
 
             // 返回主页的链接直接跳转，由主页 main.js 处理加载动画
             if (targetUrl.includes('index.html')) {
@@ -308,7 +368,7 @@
                     clearInterval(activeTransitionInterval);
                     activeTransitionInterval = null;
                     activeTransitionTimeout = setTimeout(() => {
-                        transitionPreload.finally(() => {
+                        waitBriefly(criticalPreload).then(() => {
                             window.location.href = targetUrl;
                         });
                     }, 50);
@@ -502,7 +562,7 @@
         if (!image || photos.length === 0) return;
         image.loading = 'eager';
         image.decoding = 'async';
-        preloadImages(photos, { decode: true });
+        preloadImages(isConstrainedDevice() ? photos.slice(0, 2) : photos, { decode: !isConstrainedDevice() });
 
         let currentIndex = 0;
         let renderToken = 0;
@@ -593,7 +653,7 @@
         window.addEventListener('languagechange', () => {
             photos = getCarouselPhotos();
             if (photos.length === 0) return;
-            preloadImages(photos, { decode: true });
+            preloadImages(isConstrainedDevice() ? photos.slice(0, 2) : photos, { decode: !isConstrainedDevice() });
             currentIndex = Math.min(currentIndex, photos.length - 1);
             renderDots();
             renderCarousel(currentIndex);
@@ -738,15 +798,16 @@
     let currentTravelPhotoIndex = 0;
     let travelPhotoTimer = null;
     let travelPhotoRenderToken = 0;
-    const allTravelPhotoUrls = [
-        ...defaultTravelPhotos,
-        ...Object.values(countryTravelPhotos).flat(),
-        ...Object.values(chinaProvinceTravelPhotos).flat()
-    ];
+    const allTravelPhotoUrls = [defaultTravelPhotos, ...Object.values(countryTravelPhotos), ...Object.values(chinaProvinceTravelPhotos)]
+        .reduce((allPhotos, photos) => allPhotos.concat(photos), []);
 
     const scheduleTravelPhotoWarmup = window.requestIdleCallback
-        ? () => window.requestIdleCallback(() => preloadImages(allTravelPhotoUrls, { decode: true }), { timeout: 2000 })
-        : () => window.setTimeout(() => preloadImages(allTravelPhotoUrls, { decode: true }), 500);
+        ? () => window.requestIdleCallback(() => {
+            if (!isConstrainedDevice()) preloadImages(allTravelPhotoUrls, { decode: true });
+        }, { timeout: 2000 })
+        : () => window.setTimeout(() => {
+            if (!isConstrainedDevice()) preloadImages(allTravelPhotoUrls, { decode: true });
+        }, 500);
 
     scheduleTravelPhotoWarmup();
 
@@ -840,7 +901,7 @@
         caption.textContent = captionText;
         currentTravelPhotos = getTravelPhotos(place);
         currentTravelPhotoIndex = 0;
-        preloadImages(currentTravelPhotos, { decode: true });
+        preloadImages(isConstrainedDevice() ? currentTravelPhotos.slice(0, 1) : currentTravelPhotos, { decode: !isConstrainedDevice() });
         showTravelPhoto(0);
         restartTravelPhotoTimer();
     }
@@ -861,7 +922,7 @@
 
         currentTravelPhotos = [...defaultTravelPhotos];
         currentTravelPhotoIndex = 0;
-        preloadImages(currentTravelPhotos, { decode: true });
+        preloadImages(currentTravelPhotos, { decode: !isConstrainedDevice() });
         showTravelPhoto(0);
         restartTravelPhotoTimer();
     }

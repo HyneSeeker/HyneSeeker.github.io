@@ -136,9 +136,53 @@
         transitionImagePreloads[page] = [...new Set([...(transitionImagePreloads[page] || []), ...urls])];
     });
 
+    const criticalTransitionImagePreloads = {
+        'research.html': [
+            'images/RESEARCH/research.webp',
+            'images/RESEARCH/dart_catalog.webp',
+            'images/RESEARCH/still_working.webp',
+            'images/RESEARCH/spherex.webp'
+        ],
+        'life.html': [
+            'images/LIFE/life.webp',
+            'images/LIFE/ChinaMap1-dark.webp',
+            'images/LIFE/TRAVEL/beyond.webp',
+            'images/LIFE/MOTOR/motor1.webp',
+            'images/LIFE/ART/dingprize.webp'
+        ],
+        'motion.html': [
+            'images/MOTION/sports.webp',
+            'images/MOTION/OR/or1.webp',
+            'images/MOTION/bilibili.webp',
+            'images/MOTION/TRACK/track1.webp'
+        ],
+        'about.html': [
+            'images/ABOUT/jiaozhi.webp',
+            'images/ABOUT/id.webp'
+        ]
+    };
+
     function getTransitionPreloadUrls(targetUrl) {
         const page = targetUrl.split('#')[0].split('?')[0].split('/').pop();
         return transitionImagePreloads[page] || [];
+    }
+
+    function getCriticalTransitionPreloadUrls(targetUrl) {
+        const page = targetUrl.split('#')[0].split('?')[0].split('/').pop();
+        return criticalTransitionImagePreloads[page] || getTransitionPreloadUrls(targetUrl).slice(0, 4);
+    }
+
+    function isConstrainedDevice() {
+        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        return window.matchMedia('(max-width: 768px), (pointer: coarse)').matches ||
+            Boolean(connection && (connection.saveData || /2g/.test(connection.effectiveType || '')));
+    }
+
+    function waitBriefly(promise, timeout = 650) {
+        return Promise.race([
+            promise,
+            new Promise(resolve => window.setTimeout(resolve, timeout))
+        ]);
     }
 
     const preloadedImages = new Set();
@@ -205,6 +249,7 @@
     }
 
     function warmCurrentPageImages() {
+        if (isHomePage || isConstrainedDevice()) return;
         preloadImages(collectDocumentImageUrls(), { decode: true });
     }
 
@@ -284,8 +329,9 @@
     }
 
     window.addEventListener('pageshow', event => {
-        const navigationEntry = performance.getEntriesByType?.('navigation')?.[0];
-        const isHistoryRestore = event.persisted || navigationEntry?.type === 'back_forward';
+        const navigationEntries = performance.getEntriesByType ? performance.getEntriesByType('navigation') : [];
+        const navigationEntry = navigationEntries[0];
+        const isHistoryRestore = event.persisted || (navigationEntry && navigationEntry.type === 'back_forward');
         if (!isHistoryRestore) return;
 
         if (loader) {
@@ -300,21 +346,29 @@
     if (isHomePage) {
         document.querySelectorAll('a[href$=".html"]').forEach(link => {
             link.addEventListener('pointerenter', () => {
-                preloadImages(getTransitionPreloadUrls(link.getAttribute('href') || ''));
+                const targetUrl = link.getAttribute('href') || '';
+                const urls = isConstrainedDevice() ? getCriticalTransitionPreloadUrls(targetUrl) : getTransitionPreloadUrls(targetUrl);
+                preloadImages(urls);
             }, { once: true });
             link.addEventListener('focus', () => {
-                preloadImages(getTransitionPreloadUrls(link.getAttribute('href') || ''));
+                const targetUrl = link.getAttribute('href') || '';
+                const urls = isConstrainedDevice() ? getCriticalTransitionPreloadUrls(targetUrl) : getTransitionPreloadUrls(targetUrl);
+                preloadImages(urls);
             }, { once: true });
 
             link.addEventListener('click', function(e) {
                 if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
                 e.preventDefault();
                 const targetUrl = this.getAttribute('href');
-                const transitionPreload = preloadImages(getTransitionPreloadUrls(targetUrl), { decode: true });
+                const criticalPreload = preloadImages(getCriticalTransitionPreloadUrls(targetUrl), { decode: true });
+                const restUrls = getTransitionPreloadUrls(targetUrl).filter(src => !getCriticalTransitionPreloadUrls(targetUrl).includes(src));
+                if (!isConstrainedDevice()) {
+                    preloadImages(restUrls);
+                }
 
                 // 统一使用 1000ms
                 customLoader(1000, () => {
-                    transitionPreload.finally(() => {
+                    waitBriefly(criticalPreload).then(() => {
                         window.location.href = targetUrl;
                     });
                 });
