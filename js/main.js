@@ -138,27 +138,16 @@
 
     const criticalTransitionImagePreloads = {
         'research.html': [
-            'images/RESEARCH/research.webp',
-            'images/RESEARCH/dart_catalog.webp',
-            'images/RESEARCH/still_working.webp',
-            'images/RESEARCH/spherex.webp'
+            'images/RESEARCH/research.webp'
         ],
         'life.html': [
-            'images/LIFE/life.webp',
-            'images/LIFE/ChinaMap1-dark.webp',
-            'images/LIFE/TRAVEL/beyond.webp',
-            'images/LIFE/MOTOR/motor1.webp',
-            'images/LIFE/ART/dingprize.webp'
+            'images/LIFE/life.webp'
         ],
         'motion.html': [
-            'images/MOTION/sports.webp',
-            'images/MOTION/OR/or1.webp',
-            'images/MOTION/bilibili.webp',
-            'images/MOTION/TRACK/track1.webp'
+            'images/MOTION/sports.webp'
         ],
         'about.html': [
-            'images/ABOUT/jiaozhi.webp',
-            'images/ABOUT/id.webp'
+            'images/ABOUT/jiaozhi.webp'
         ]
     };
 
@@ -169,6 +158,8 @@
         'images/sports.webp',
         'images/jiaozhi.webp'
     ];
+
+    const allPageIdlePreloads = [...new Set(Object.values(criticalTransitionImagePreloads).flat())];
 
     function getTransitionPreloadUrls(targetUrl) {
         const page = targetUrl.split('#')[0].split('?')[0].split('/').pop();
@@ -195,6 +186,7 @@
 
     const fullBleedMobileImages = new Set([
         'images/research.webp',
+        'images/home.webp',
         'images/life-bg.webp',
         'images/sports.webp',
         'images/jiaozhi.webp',
@@ -349,9 +341,62 @@
         window.setTimeout(task, Math.min(timeout, 500));
     }
 
+    const idlePreloadQueue = [];
+    const idlePreloadQueued = new Set();
+    let idlePreloadRunning = false;
+
+    function runIdlePreloadQueue() {
+        if (idlePreloadRunning || !idlePreloadQueue.length) return;
+
+        idlePreloadRunning = true;
+        scheduleIdleTask(deadline => {
+            const batch = [];
+            const maxBatch = isConstrainedDevice() ? 2 : 5;
+
+            while (
+                idlePreloadQueue.length &&
+                batch.length < maxBatch &&
+                (!deadline || deadline.didTimeout || deadline.timeRemaining() > 5)
+            ) {
+                batch.push(idlePreloadQueue.shift());
+            }
+
+            if (!batch.length && idlePreloadQueue.length) {
+                batch.push(idlePreloadQueue.shift());
+            }
+
+            const finish = () => {
+                idlePreloadRunning = false;
+                if (idlePreloadQueue.length) {
+                    window.setTimeout(runIdlePreloadQueue, isConstrainedDevice() ? 900 : 180);
+                }
+            };
+
+            preloadImages(batch, { fetchPriority: 'low' }).then(finish, finish);
+        }, isConstrainedDevice() ? 2400 : 1400);
+    }
+
+    function queueIdlePreloads(urls, options = {}) {
+        const uniqueUrls = [...new Set((urls || []).filter(Boolean))];
+        const orderedUrls = options.priority ? uniqueUrls.slice().reverse() : uniqueUrls;
+
+        orderedUrls.forEach(src => {
+            if (idlePreloadQueued.has(src)) return;
+            idlePreloadQueued.add(src);
+            if (options.priority) {
+                idlePreloadQueue.unshift(src);
+            } else {
+                idlePreloadQueue.push(src);
+            }
+        });
+
+        runIdlePreloadQueue();
+    }
+
     function preloadHomeSecondaryImages() {
         if (!isHomePage) return;
-        preloadImages(homeSecondaryImagePreloads, { fetchPriority: 'low' });
+        queueIdlePreloads(homeSecondaryImagePreloads, { priority: true });
+        queueIdlePreloads(allPageIdlePreloads);
     }
 
     function waitForImageElement(image, timeout = 2200) {
@@ -510,7 +555,11 @@
 
                 // 统一使用 1000ms
                 customLoader(1000, () => {
-                    waitBriefly(criticalPreload, isConstrainedDevice() ? 1200 : 650).then(() => {
+                    const navigationReady = isConstrainedDevice()
+                        ? criticalPreload
+                        : waitBriefly(criticalPreload, 650);
+
+                    navigationReady.then(() => {
                         window.location.href = targetUrl;
                     });
                 });

@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="个人主页：场域、留白、律动与交织。">
     <title>原点 | Personal Homepage</title>
-    <link rel="preload" as="image" href="images/mobile/1024/research.webp" media="(max-width: 768px)" fetchpriority="high">
-    <link rel="preload" as="image" href="images/research.webp" media="(min-width: 769px)" fetchpriority="high">
-    <link rel="stylesheet" href="css/style.css?v=mobile-load-20260605">
+    <link rel="preload" as="image" href="images/mobile/1024/home.webp" media="(max-width: 768px)" fetchpriority="high">
+    <link rel="preload" as="image" href="images/home.webp" media="(min-width: 769px)" fetchpriority="high">
+    <link rel="stylesheet" href="css/style.css?v=mobile-home-20260605">
 </head>
 <body data-lang="zh">
     <!-- 加载屏 -->
@@ -57,8 +57,8 @@
     <section class="hero" id="hero">
         <div class="hero-video">
             <picture class="hero-poster">
-                <source type="image/webp" srcset="images/mobile/480/research.webp 480w, images/mobile/768/research.webp 768w, images/mobile/1024/research.webp 1024w, images/research.webp 1535w" sizes="100vw">
-                <img loading="eager" decoding="async" fetchpriority="high" src="images/mobile/1024/research.webp" alt="" aria-hidden="true">
+                <source type="image/webp" srcset="images/mobile/480/home.webp 480w, images/mobile/768/home.webp 768w, images/mobile/1024/home.webp 1024w, images/home.webp 1920w" sizes="100vw">
+                <img loading="eager" decoding="async" fetchpriority="high" src="images/mobile/1024/home.webp" alt="" aria-hidden="true">
             </picture>
             <video id="heroVideo" autoplay muted loop playsinline preload="metadata" data-src="./videos/homepage_animation.mp4"></video>
             <!-- 视频加载时的占位背景 -->
@@ -80,7 +80,7 @@
     <!-- 科研区域 -->
     <section class="section section-research" id="research">
         <div class="section-bg">
-            <img loading="eager" decoding="async" fetchpriority="high" src="images/mobile/1024/research.webp" srcset="images/mobile/480/research.webp 480w, images/mobile/768/research.webp 768w, images/mobile/1024/research.webp 1024w, images/research.webp 1535w" sizes="100vw" alt="Research Background" class="bg-image" data-critical-image>
+            <img loading="lazy" decoding="async" src="images/mobile/1024/research.webp" srcset="images/mobile/480/research.webp 480w, images/mobile/768/research.webp 768w, images/mobile/1024/research.webp 1024w, images/research.webp 1535w" sizes="100vw" alt="Research Background" class="bg-image">
         </div>
         <div class="section-container">
             <div class="section-header">
@@ -256,6 +256,6 @@
         </div>
     </footer>
 
-    <script src="js/main.js?v=mobile-load-20260605"></script>
+    <script src="js/main.js?v=mobile-home-20260605"></script>
 </body>
 </html>

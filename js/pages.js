@@ -55,6 +55,7 @@
             'images/ABOUT/id.webp'
         ],
         'index.html': [
+            'images/home.webp',
             'images/research.webp',
             'images/spherex.webp',
             'images/life-bg.webp',
@@ -136,36 +137,23 @@
 
     const criticalTransitionImagePreloads = {
         'research.html': [
-            'images/RESEARCH/research.webp',
-            'images/RESEARCH/dart_catalog.webp',
-            'images/RESEARCH/still_working.webp',
-            'images/RESEARCH/spherex.webp'
+            'images/RESEARCH/research.webp'
         ],
         'life.html': [
-            'images/LIFE/life.webp',
-            'images/LIFE/ChinaMap1-dark.webp',
-            'images/LIFE/TRAVEL/beyond.webp',
-            'images/LIFE/MOTOR/motor1.webp',
-            'images/LIFE/ART/dingprize.webp'
+            'images/LIFE/life.webp'
         ],
         'motion.html': [
-            'images/MOTION/sports.webp',
-            'images/MOTION/OR/or1.webp',
-            'images/MOTION/bilibili.webp',
-            'images/MOTION/TRACK/track1.webp'
+            'images/MOTION/sports.webp'
         ],
         'about.html': [
-            'images/ABOUT/jiaozhi.webp',
-            'images/ABOUT/id.webp'
+            'images/ABOUT/jiaozhi.webp'
         ],
         'index.html': [
-            'images/research.webp',
-            'images/spherex.webp',
-            'images/life-bg.webp',
-            'images/life-map.webp',
-            'images/sports.webp'
+            'images/home.webp'
         ]
     };
+
+    const allPageIdlePreloads = [...new Set(Object.values(criticalTransitionImagePreloads).flat())];
 
     function getTransitionPreloadUrls(targetUrl) {
         const page = targetUrl.split('#')[0].split('?')[0].split('/').pop() || 'index.html';
@@ -192,6 +180,7 @@
 
     const fullBleedMobileImages = new Set([
         'images/research.webp',
+        'images/home.webp',
         'images/life-bg.webp',
         'images/sports.webp',
         'images/jiaozhi.webp',
@@ -212,7 +201,9 @@
 
     function getMobileImageWidth(src) {
         if (!isConstrainedDevice()) return null;
-        if (isFullBleedMobileImage(src)) return 1024;
+        if (isFullBleedMobileImage(src)) {
+            return window.matchMedia('(max-width: 480px)').matches ? 768 : 1024;
+        }
         if (window.matchMedia('(max-width: 480px)').matches) return 768;
         return 1024;
     }
@@ -357,7 +348,7 @@
             const finish = () => {
                 mobileImageWarmupRunning = false;
                 if (mobileImageWarmupQueue.length) {
-                    runMobileImageWarmup();
+                    window.setTimeout(runMobileImageWarmup, isConstrainedDevice() ? 900 : 180);
                 }
             };
 
@@ -434,10 +425,13 @@
 
     function warmCurrentPageImages() {
         if (isConstrainedDevice()) {
-            queueMobileImageWarmup(collectDocumentImageUrls());
+            queueMobileImageWarmup(collectDocumentImageUrls(), { priority: true });
+            queueMobileImageWarmup(allPageIdlePreloads);
             return;
         }
-        preloadImages(collectDocumentImageUrls(), { decode: true });
+        preloadImages(collectDocumentImageUrls(), { decode: true }).then(() => {
+            preloadImages(allPageIdlePreloads, { fetchPriority: 'low' });
+        });
     }
 
     const scheduleImageWarmup = () => scheduleIdleTask(warmCurrentPageImages, 1600, 350);
@@ -556,7 +550,11 @@
                     clearInterval(activeTransitionInterval);
                     activeTransitionInterval = null;
                     activeTransitionTimeout = setTimeout(() => {
-                        waitBriefly(criticalPreload, isConstrainedDevice() ? 1200 : 650).then(() => {
+                        const navigationReady = isConstrainedDevice()
+                            ? criticalPreload
+                            : waitBriefly(criticalPreload, 650);
+
+                        navigationReady.then(() => {
                             window.location.href = targetUrl;
                         });
                     }, 50);
