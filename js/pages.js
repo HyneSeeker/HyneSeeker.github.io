@@ -198,7 +198,17 @@
 
     function preloadImage(src, options = {}) {
         if (!src) return Promise.resolve(null);
-        if (imagePreloadCache.has(src)) return imagePreloadCache.get(src);
+        if (imagePreloadCache.has(src)) {
+            const cached = imagePreloadCache.get(src);
+            if (!options.decode) return cached;
+
+            return cached.then(image => {
+                if (image && image.decode) {
+                    return image.decode().then(() => image, () => image);
+                }
+                return image;
+            });
+        }
 
         const promise = new Promise(resolve => {
             const image = new Image();
@@ -238,6 +248,100 @@
         return Promise.all(tasks);
     }
 
+    function scheduleIdleTask(callback, timeout = 1600, delay = 350) {
+        if (window.requestIdleCallback) {
+            window.requestIdleCallback(callback, { timeout });
+            return;
+        }
+
+        window.setTimeout(() => {
+            callback({
+                didTimeout: true,
+                timeRemaining: () => 12
+            });
+        }, delay);
+    }
+
+    const mobileImageWarmupQueue = [];
+    const mobileImageWarmupQueued = new Set();
+    let mobileImageWarmupRunning = false;
+
+    function runMobileImageWarmup() {
+        if (mobileImageWarmupRunning || !mobileImageWarmupQueue.length) return;
+
+        mobileImageWarmupRunning = true;
+        scheduleIdleTask(deadline => {
+            const batch = [];
+            const maxBatch = window.matchMedia('(max-width: 480px)').matches ? 2 : 3;
+
+            while (
+                mobileImageWarmupQueue.length &&
+                batch.length < maxBatch &&
+                (deadline.didTimeout || deadline.timeRemaining() > 5)
+            ) {
+                batch.push(mobileImageWarmupQueue.shift());
+            }
+
+            if (!batch.length && mobileImageWarmupQueue.length) {
+                batch.push(mobileImageWarmupQueue.shift());
+            }
+
+            const finish = () => {
+                mobileImageWarmupRunning = false;
+                if (mobileImageWarmupQueue.length) {
+                    runMobileImageWarmup();
+                }
+            };
+
+            preloadImages(batch, { decode: false }).then(finish, finish);
+        }, 1800, 450);
+    }
+
+    function queueMobileImageWarmup(urls, options = {}) {
+        const uniqueUrls = [...new Set((urls || []).filter(Boolean))];
+        if (!uniqueUrls.length) return;
+
+        if (!isConstrainedDevice()) {
+            preloadImages(uniqueUrls, { decode: true });
+            return;
+        }
+
+        const orderedUrls = options.priority ? uniqueUrls.slice().reverse() : uniqueUrls;
+        orderedUrls.forEach(src => {
+            if (mobileImageWarmupQueued.has(src)) {
+                if (options.priority) {
+                    const queueIndex = mobileImageWarmupQueue.indexOf(src);
+                    if (queueIndex >= 0) {
+                        mobileImageWarmupQueue.splice(queueIndex, 1);
+                        mobileImageWarmupQueue.unshift(src);
+                    }
+                }
+                return;
+            }
+
+            mobileImageWarmupQueued.add(src);
+            if (options.priority) {
+                mobileImageWarmupQueue.unshift(src);
+            } else {
+                mobileImageWarmupQueue.push(src);
+            }
+        });
+
+        runMobileImageWarmup();
+    }
+
+    function getNearbyImageUrls(urls, index, distance = 2) {
+        if (!urls?.length) return [];
+
+        const nearby = [];
+        for (let step = 1; step <= distance; step += 1) {
+            nearby.push(urls[(index + step) % urls.length]);
+            nearby.push(urls[(index - step + urls.length) % urls.length]);
+        }
+
+        return [...new Set(nearby)].filter(Boolean);
+    }
+
     function collectDocumentImageUrls() {
         const urls = new Set();
         const imagePattern = /images\/[^,\s"')]+?\.(?:webp|png|jpe?g|gif|svg)/gi;
@@ -257,13 +361,14 @@
     }
 
     function warmCurrentPageImages() {
-        if (isConstrainedDevice()) return;
+        if (isConstrainedDevice()) {
+            queueMobileImageWarmup(collectDocumentImageUrls());
+            return;
+        }
         preloadImages(collectDocumentImageUrls(), { decode: true });
     }
 
-    const scheduleImageWarmup = window.requestIdleCallback
-        ? () => window.requestIdleCallback(warmCurrentPageImages, { timeout: 1600 })
-        : () => window.setTimeout(warmCurrentPageImages, 350);
+    const scheduleImageWarmup = () => scheduleIdleTask(warmCurrentPageImages, 1600, 350);
 
     window.addEventListener('load', scheduleImageWarmup, { once: true });
 
@@ -562,7 +667,18 @@
         if (!image || photos.length === 0) return;
         image.loading = 'eager';
         image.decoding = 'async';
-        preloadImages(isConstrainedDevice() ? photos.slice(0, 2) : photos, { decode: !isConstrainedDevice() });
+
+        function warmCarouselPhotos() {
+            if (isConstrainedDevice()) {
+                preloadImages(photos.slice(0, 2), { decode: false });
+                queueMobileImageWarmup(photos.slice(2));
+                return;
+            }
+
+            preloadImages(photos, { decode: true });
+        }
+
+        warmCarouselPhotos();
 
         let currentIndex = 0;
         let renderToken = 0;
@@ -585,6 +701,10 @@
             const targetIndex = currentIndex;
             const targetSrc = photos[targetIndex];
             const token = ++renderToken;
+
+            if (isConstrainedDevice()) {
+                queueMobileImageWarmup(getNearbyImageUrls(photos, targetIndex, 2), { priority: true });
+            }
 
             preloadImage(targetSrc, { decode: true }).then(nextImage => {
                 if (token !== renderToken) return;
@@ -653,7 +773,7 @@
         window.addEventListener('languagechange', () => {
             photos = getCarouselPhotos();
             if (photos.length === 0) return;
-            preloadImages(isConstrainedDevice() ? photos.slice(0, 2) : photos, { decode: !isConstrainedDevice() });
+            warmCarouselPhotos();
             currentIndex = Math.min(currentIndex, photos.length - 1);
             renderDots();
             renderCarousel(currentIndex);
@@ -801,13 +921,30 @@
     const allTravelPhotoUrls = [defaultTravelPhotos, ...Object.values(countryTravelPhotos), ...Object.values(chinaProvinceTravelPhotos)]
         .reduce((allPhotos, photos) => allPhotos.concat(photos), []);
 
-    const scheduleTravelPhotoWarmup = window.requestIdleCallback
-        ? () => window.requestIdleCallback(() => {
-            if (!isConstrainedDevice()) preloadImages(allTravelPhotoUrls, { decode: true });
-        }, { timeout: 2000 })
-        : () => window.setTimeout(() => {
-            if (!isConstrainedDevice()) preloadImages(allTravelPhotoUrls, { decode: true });
-        }, 500);
+    function warmTravelPhotos(photos) {
+        if (isConstrainedDevice()) {
+            preloadImages(photos.slice(0, 1), { decode: false });
+            queueMobileImageWarmup(photos.slice(1));
+            return;
+        }
+
+        preloadImages(photos, { decode: true });
+    }
+
+    function warmNearbyTravelPhotos(index) {
+        if (isConstrainedDevice()) {
+            queueMobileImageWarmup(getNearbyImageUrls(currentTravelPhotos, index, 2), { priority: true });
+        }
+    }
+
+    const scheduleTravelPhotoWarmup = () => scheduleIdleTask(() => {
+        if (isConstrainedDevice()) {
+            queueMobileImageWarmup(allTravelPhotoUrls);
+            return;
+        }
+
+        preloadImages(allTravelPhotoUrls, { decode: true });
+    }, 2200, 650);
 
     scheduleTravelPhotoWarmup();
 
@@ -853,6 +990,7 @@
             lightboxCaption.textContent = caption;
         }
         renderTravelDots();
+        warmNearbyTravelPhotos(currentTravelPhotoIndex);
 
         preloadImage(photoSrc, { decode: true }).then(() => {
             if (token !== travelPhotoRenderToken) return;
@@ -901,7 +1039,7 @@
         caption.textContent = captionText;
         currentTravelPhotos = getTravelPhotos(place);
         currentTravelPhotoIndex = 0;
-        preloadImages(isConstrainedDevice() ? currentTravelPhotos.slice(0, 1) : currentTravelPhotos, { decode: !isConstrainedDevice() });
+        warmTravelPhotos(currentTravelPhotos);
         showTravelPhoto(0);
         restartTravelPhotoTimer();
     }
@@ -922,7 +1060,7 @@
 
         currentTravelPhotos = [...defaultTravelPhotos];
         currentTravelPhotoIndex = 0;
-        preloadImages(currentTravelPhotos, { decode: !isConstrainedDevice() });
+        warmTravelPhotos(currentTravelPhotos);
         showTravelPhoto(0);
         restartTravelPhotoTimer();
     }
