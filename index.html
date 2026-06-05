@@ -7,15 +7,13 @@
     <title>原点 | Personal Homepage</title>
     <link rel="preload" as="image" href="images/mobile/1024/research.webp" media="(max-width: 768px)" fetchpriority="high">
     <link rel="preload" as="image" href="images/research.webp" media="(min-width: 769px)" fetchpriority="high">
-    <link rel="preload" as="image" href="images/mobile/768/spherex.webp" media="(max-width: 768px)">
-    <link rel="preload" as="image" href="images/spherex.webp" media="(min-width: 769px)">
-    <link rel="stylesheet" href="css/style.css?v=mobile-bgpreload2-20260605">
+    <link rel="stylesheet" href="css/style.css?v=mobile-load-20260605">
 </head>
 <body data-lang="zh">
     <!-- 加载屏 -->
     <div class="loader" id="loader">
         <div class="loader-logo">
-            <img src="images/Ding_ver1.png" alt="DING Logo" class="logo-img">
+            <img src="images/mobile/480/Ding_ver1.webp" srcset="images/mobile/480/Ding_ver1.webp 480w, images/Ding_ver1.png 900w" sizes="200px" alt="DING Logo" class="logo-img">
         </div>
         <div class="loader-progress">
             <div class="progress-bar"></div>
@@ -25,7 +23,7 @@
     <!-- 导航栏 -->
     <nav class="nav" id="nav">
         <div class="nav-logo">
-            <img src="images/Ding_ver1.png" alt="DING Logo" class="nav-logo-img">
+            <img src="images/mobile/480/Ding_ver1.webp" srcset="images/mobile/480/Ding_ver1.webp 480w, images/Ding_ver1.png 900w" sizes="80px" alt="DING Logo" class="nav-logo-img">
         </div>
         <div class="nav-menu">
             <a href="#research" class="nav-link">
@@ -58,10 +56,11 @@
     <!-- Hero 区域 - 视频背景 -->
     <section class="hero" id="hero">
         <div class="hero-video">
-            <!-- 视频 - 请将你的视频放在 videos/hero.mp4 -->
-            <video id="heroVideo" autoplay muted loop playsinline>
-                <source src="./videos/homepage_animation.mp4" type="video/mp4">
-            </video>
+            <picture class="hero-poster">
+                <source type="image/webp" srcset="images/mobile/480/research.webp 480w, images/mobile/768/research.webp 768w, images/mobile/1024/research.webp 1024w, images/research.webp 1535w" sizes="100vw">
+                <img loading="eager" decoding="async" fetchpriority="high" src="images/mobile/1024/research.webp" alt="" aria-hidden="true">
+            </picture>
+            <video id="heroVideo" autoplay muted loop playsinline preload="metadata" data-src="./videos/homepage_animation.mp4"></video>
             <!-- 视频加载时的占位背景 -->
             <div class="hero-placeholder"></div>
         </div>
@@ -81,7 +80,7 @@
     <!-- 科研区域 -->
     <section class="section section-research" id="research">
         <div class="section-bg">
-            <img loading="eager" decoding="async" fetchpriority="high" src="images/mobile/1024/research.webp" srcset="images/mobile/480/research.webp 480w, images/mobile/768/research.webp 768w, images/mobile/1024/research.webp 1024w, images/research.webp 1535w" sizes="(max-width: 768px) 100vw, 100vw" alt="Research Background" class="bg-image">
+            <img loading="eager" decoding="async" fetchpriority="high" src="images/mobile/1024/research.webp" srcset="images/mobile/480/research.webp 480w, images/mobile/768/research.webp 768w, images/mobile/1024/research.webp 1024w, images/research.webp 1535w" sizes="100vw" alt="Research Background" class="bg-image" data-critical-image>
         </div>
         <div class="section-container">
             <div class="section-header">
@@ -106,7 +105,7 @@
                 <div class="content-visual">
                     <div class="visual-card research-portrait">
                         <div class="card-image">
-                            <img loading="eager" decoding="async" fetchpriority="high" src="images/mobile/768/spherex.webp" srcset="images/mobile/480/spherex.webp 480w, images/mobile/768/spherex.webp 768w, images/mobile/1024/spherex.webp 1024w, images/spherex.webp 1614w" sizes="(max-width: 768px) 86vw, 420px" alt="SPHEREx telescope concept">
+                            <img loading="lazy" decoding="async" src="images/mobile/768/spherex.webp" srcset="images/mobile/480/spherex.webp 480w, images/mobile/768/spherex.webp 768w, images/mobile/1024/spherex.webp 1024w, images/spherex.webp 1614w" sizes="(max-width: 768px) 86vw, 420px" alt="SPHEREx telescope concept">
                         </div>
                         <div class="card-info">
                             <span class="lang-zh">循迹信号</span>
@@ -248,7 +247,7 @@
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-logo">
-                <img src="images/Ding_ver1.png" alt="DING Logo" class="footer-logo-img">
+                <img loading="lazy" decoding="async" src="images/mobile/480/Ding_ver1.webp" srcset="images/mobile/480/Ding_ver1.webp 480w, images/Ding_ver1.png 900w" sizes="100px" alt="DING Logo" class="footer-logo-img">
             </div>
             <p class="footer-text">
                 <span class="lang-zh">In Continuous Exploration.</span>
@@ -257,6 +256,6 @@
         </div>
     </footer>
 
-    <script src="js/main.js?v=mobile-bgpreload2-20260605"></script>
+    <script src="js/main.js?v=mobile-load-20260605"></script>
 </body>
 </html>

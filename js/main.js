@@ -162,6 +162,14 @@
         ]
     };
 
+    const homeSecondaryImagePreloads = [
+        'images/spherex.webp',
+        'images/life-bg.webp',
+        'images/life-map.webp',
+        'images/sports.webp',
+        'images/jiaozhi.webp'
+    ];
+
     function getTransitionPreloadUrls(targetUrl) {
         const page = targetUrl.split('#')[0].split('?')[0].split('/').pop();
         return transitionImagePreloads[page] || [];
@@ -207,7 +215,9 @@
 
     function getMobileImageWidth(src) {
         if (!isConstrainedDevice()) return null;
-        if (isFullBleedMobileImage(src)) return 1024;
+        if (isFullBleedMobileImage(src)) {
+            return window.matchMedia('(max-width: 480px)').matches ? 768 : 1024;
+        }
         if (window.matchMedia('(max-width: 480px)').matches) return 768;
         return 1024;
     }
@@ -331,8 +341,54 @@
 
     window.addEventListener('load', scheduleImageWarmup, { once: true });
 
-    // 慢速加载（首次进入页面）- 约2秒
-    function slowLoader(callback) {
+    function scheduleIdleTask(task, timeout = 1600) {
+        if (window.requestIdleCallback) {
+            window.requestIdleCallback(task, { timeout });
+            return;
+        }
+        window.setTimeout(task, Math.min(timeout, 500));
+    }
+
+    function preloadHomeSecondaryImages() {
+        if (!isHomePage) return;
+        preloadImages(homeSecondaryImagePreloads, { fetchPriority: 'low' });
+    }
+
+    function waitForImageElement(image, timeout = 2200) {
+        if (!image) return Promise.resolve();
+
+        const decodeImage = () => {
+            if (!image.decode) return Promise.resolve();
+            return image.decode().catch(() => undefined);
+        };
+
+        if (image.complete && image.naturalWidth > 0) {
+            return waitBriefly(decodeImage(), timeout);
+        }
+
+        return new Promise(resolve => {
+            let settled = false;
+            const finish = () => {
+                if (settled) return;
+                settled = true;
+                window.clearTimeout(timer);
+                image.removeEventListener('load', finish);
+                image.removeEventListener('error', finish);
+                decodeImage().then(resolve, resolve);
+            };
+            const timer = window.setTimeout(finish, timeout);
+            image.addEventListener('load', finish, { once: true });
+            image.addEventListener('error', finish, { once: true });
+        });
+    }
+
+    function getInitialCriticalImages() {
+        if (!isHomePage) return [];
+        return [...document.querySelectorAll('.hero-poster img, [data-critical-image]')];
+    }
+
+    // 首次进入：等关键背景图就绪后收起 loader，并设置最长兜底时间。
+    function initialLoader(readyPromise, callback) {
         if (loader) {
             loader.classList.remove('loaded');
             if (progressBar) {
@@ -344,19 +400,20 @@
             }
 
             let progress = 0;
+            let target = 88;
             const loadingInterval = setInterval(() => {
-                progress += Math.random() * 15;
-                if (progress >= 100) {
-                    progress = 100;
-                    updateProgress(100);
-                    clearInterval(loadingInterval);
-                    setTimeout(() => {
-                        if (callback) callback();
-                    }, 300);
-                } else {
-                    updateProgress(progress);
-                }
-            }, 200);
+                progress = Math.min(target, progress + Math.max(3, (target - progress) * 0.18));
+                updateProgress(progress);
+            }, 80);
+
+            waitBriefly(readyPromise, isConstrainedDevice() ? 2400 : 1700).then(() => {
+                target = 100;
+                updateProgress(100);
+                clearInterval(loadingInterval);
+                window.setTimeout(() => {
+                    if (callback) callback();
+                }, 140);
+            });
         } else if (callback) {
             callback();
         }
@@ -393,10 +450,12 @@
         }
     }
 
-    // 页面初始加载 - 慢速
+    // 页面初始加载
     if (loader && progressBar) {
-        slowLoader(() => {
+        const criticalImagesReady = Promise.all(getInitialCriticalImages().map(image => waitForImageElement(image)));
+        initialLoader(criticalImagesReady, () => {
             loader.classList.add('loaded');
+            scheduleIdleTask(preloadHomeSecondaryImages, isConstrainedDevice() ? 2200 : 1200);
         });
     }
 
@@ -650,18 +709,42 @@
     // ===== 视频处理 =====
     const heroVideo = document.getElementById('heroVideo');
 
+    function hasVideoSource(video) {
+        return Boolean(video && (video.currentSrc || video.querySelector('source')));
+    }
+
+    function loadHeroVideoWhenAppropriate() {
+        if (!heroVideo || isConstrainedDevice() || heroVideo.dataset.loaded === 'true') return;
+
+        const src = heroVideo.dataset.src;
+        if (!src) return;
+
+        const source = document.createElement('source');
+        source.src = src;
+        source.type = 'video/mp4';
+        heroVideo.appendChild(source);
+        heroVideo.dataset.loaded = 'true';
+        heroVideo.load();
+    }
+
     // 检查视频是否可以播放
     if (heroVideo) {
         heroVideo.addEventListener('canplay', () => {
+            heroVideo.classList.add('is-ready');
             heroVideo.play().catch(err => {
                 console.log('视频自动播放被阻止，用户交互后播放');
             });
         });
 
+        window.addEventListener('load', () => {
+            scheduleIdleTask(loadHeroVideoWhenAppropriate, 2600);
+        }, { once: true });
+
         // 用户交互后尝试播放视频（仅主页，避免与pages.js冲突）
         if (document.getElementById('hero')) {
             document.addEventListener('click', () => {
-                if (heroVideo.paused) {
+                loadHeroVideoWhenAppropriate();
+                if (hasVideoSource(heroVideo) && heroVideo.paused) {
                     heroVideo.play();
                 }
             }, { once: true });
@@ -687,7 +770,7 @@
                 heroVideo.pause();
             }
         } else {
-            if (heroVideo && heroVideo.paused) {
+            if (heroVideo && hasVideoSource(heroVideo) && heroVideo.paused) {
                 heroVideo.play();
             }
         }
