@@ -41,7 +41,7 @@
             'images/LIFE/life.webp',
             'images/LIFE/ChinaMap1-dark.webp',
             'images/LIFE/TRAVEL/beyond.webp',
-            'images/LIFE/MOTOR/motor1.webp',
+            'images/LIFE/MOTOR/motor5.webp',
             'images/LIFE/ART/dingprize.webp'
         ],
         'motion.html': [
@@ -70,9 +70,7 @@
             'images/RESEARCH/frb_rate.png'
         ],
         'life.html': [
-            'images/LIFE/MOTOR/motor2.webp',
-            'images/LIFE/MOTOR/motor3.webp',
-            'images/LIFE/MOTOR/motor4.webp',
+            'images/LIFE/MOTOR/motor6.webp',
             'images/LIFE/ART/dingprize-en.webp',
             'images/LIFE/ART/art1.webp',
             'images/LIFE/ART/art2.png',
