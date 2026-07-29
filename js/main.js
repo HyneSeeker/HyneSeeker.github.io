@@ -42,94 +42,6 @@
         }
     }
 
-    const transitionImagePreloads = {
-        'research.html': [
-            'images/RESEARCH/research.webp',
-            'images/RESEARCH/dart_catalog.webp',
-            'images/RESEARCH/still_working.webp',
-            'images/RESEARCH/spherex.webp'
-        ],
-        'life.html': [
-            'images/LIFE/life.webp',
-            'images/LIFE/ChinaMap1-dark.webp',
-            'images/LIFE/TRAVEL/beyond.webp',
-            'images/LIFE/MOTOR/motor5.webp',
-            'images/LIFE/ART/dingprize.webp'
-        ],
-        'motion.html': [
-            'images/MOTION/sports.webp',
-            'images/MOTION/OR/or1.webp',
-            'images/MOTION/bilibili.webp',
-            'images/MOTION/TRACK/track1.webp'
-        ],
-        'about.html': [
-            'images/ABOUT/jiaozhi.webp',
-            'images/ABOUT/id.webp'
-        ]
-    };
-
-    const expandedTransitionImagePreloads = {
-        'research.html': [
-            'images/RESEARCH/pulsar_searching.webp'
-        ],
-        'life.html': [
-            'images/LIFE/MOTOR/motor6.webp',
-            'images/LIFE/ART/dingprize-en.webp',
-            'images/LIFE/ART/art4.webp',
-            'images/LIFE/TRAVEL/France/fr.webp',
-            'images/LIFE/TRAVEL/Italy/it.webp',
-            'images/LIFE/TRAVEL/NewZealand/nz.webp',
-            'images/LIFE/TRAVEL/Qatar/qatar.webp',
-            'images/LIFE/TRAVEL/CHINA/Anhui/ah.webp',
-            'images/LIFE/TRAVEL/CHINA/Aomen/am.webp',
-            'images/LIFE/TRAVEL/CHINA/Beijing/bj.webp',
-            'images/LIFE/TRAVEL/CHINA/Chongqing/cq.webp',
-            'images/LIFE/TRAVEL/CHINA/Guangdong/gd.webp',
-            'images/LIFE/TRAVEL/CHINA/Guizhou/gz.webp',
-            'images/LIFE/TRAVEL/CHINA/Hainan/hn.webp',
-            'images/LIFE/TRAVEL/CHINA/Hebei/hb.webp',
-            'images/LIFE/TRAVEL/CHINA/Henan/hn.webp',
-            'images/LIFE/TRAVEL/CHINA/Hubei/hb.webp',
-            'images/LIFE/TRAVEL/CHINA/Hunan/hn.webp',
-            'images/LIFE/TRAVEL/CHINA/Jiangsu/js.webp',
-            'images/LIFE/TRAVEL/CHINA/Jiangxi/jx.webp',
-            'images/LIFE/TRAVEL/CHINA/Jilin/jl.webp',
-            'images/LIFE/TRAVEL/CHINA/Liaoning/ln.webp',
-            'images/LIFE/TRAVEL/CHINA/Neimenggu/nm.webp',
-            'images/LIFE/TRAVEL/CHINA/Ningxia/nx.webp',
-            'images/LIFE/TRAVEL/CHINA/SIchuan/sc.webp',
-            'images/LIFE/TRAVEL/CHINA/Shandong/sd.webp',
-            'images/LIFE/TRAVEL/CHINA/Shanghai/sh.webp',
-            'images/LIFE/TRAVEL/CHINA/Shanxi_Jin/sx.webp',
-            'images/LIFE/TRAVEL/CHINA/Shanxi/sx.webp',
-            'images/LIFE/TRAVEL/CHINA/Tianjin/tj.webp',
-            'images/LIFE/TRAVEL/CHINA/Xianggang/xg.webp',
-            'images/LIFE/TRAVEL/CHINA/Yunnan/yn.webp',
-            'images/LIFE/TRAVEL/CHINA/Zhejiang/zj.webp'
-        ],
-        'motion.html': [
-            'images/MOTION/OR/or2.webp',
-            'images/MOTION/OR/or3.webp',
-            'images/MOTION/OR/or4.webp',
-            'images/MOTION/OR/or5.webp',
-            'images/MOTION/OR/or6.webp',
-            'images/MOTION/OR/or7.webp',
-            'images/MOTION/OR/or8.webp',
-            'images/MOTION/TRACK/track2.webp',
-            'images/MOTION/TRACK/track3.webp',
-            'images/MOTION/TRACK/track4.webp',
-            'images/MOTION/TRACK/track5.webp',
-            'images/MOTION/TRACK/track6.webp',
-            'images/MOTION/TRACK/track7.webp',
-            'images/MOTION/TRACK/track8.webp',
-            'images/MOTION/TRACK/track9.webp'
-        ]
-    };
-
-    Object.entries(expandedTransitionImagePreloads).forEach(([page, urls]) => {
-        transitionImagePreloads[page] = [...new Set([...(transitionImagePreloads[page] || []), ...urls])];
-    });
-
     const criticalTransitionImagePreloads = {
         'research.html': [
             'images/RESEARCH/research.webp'
@@ -145,24 +57,9 @@
         ]
     };
 
-    const homeSecondaryImagePreloads = [
-        'images/spherex.webp',
-        'images/life-bg.webp',
-        'images/life-map.webp',
-        'images/sports.webp',
-        'images/jiaozhi.webp'
-    ];
-
-    const allPageIdlePreloads = [...new Set(Object.values(criticalTransitionImagePreloads).flat())];
-
-    function getTransitionPreloadUrls(targetUrl) {
-        const page = targetUrl.split('#')[0].split('?')[0].split('/').pop();
-        return transitionImagePreloads[page] || [];
-    }
-
     function getCriticalTransitionPreloadUrls(targetUrl) {
         const page = targetUrl.split('#')[0].split('?')[0].split('/').pop();
-        return criticalTransitionImagePreloads[page] || getTransitionPreloadUrls(targetUrl).slice(0, 4);
+        return criticalTransitionImagePreloads[page] || [];
     }
 
     function isConstrainedDevice() {
@@ -294,103 +191,12 @@
 
     applyMobileImageSources();
 
-    function collectDocumentImageUrls() {
-        const urls = new Set();
-        const imagePattern = /images\/[^,\s"')]+?\.(?:webp|png|jpe?g|gif|svg)/gi;
-
-        document.querySelectorAll('img[src]').forEach(image => {
-            if (!image.hasAttribute('srcset')) {
-                urls.add(image.getAttribute('src'));
-            }
-        });
-        document.querySelectorAll('[data-carousel-photos], [data-carousel-photos-en], [data-carousel-link-photo], [data-carousel-link-photo-en], [data-photo], [data-photos]').forEach(element => {
-            [...element.attributes].forEach(attribute => {
-                let match;
-                while ((match = imagePattern.exec(attribute.value))) {
-                    urls.add(match[0]);
-                }
-                imagePattern.lastIndex = 0;
-            });
-        });
-
-        return [...urls];
-    }
-
-    function warmCurrentPageImages() {
-        if (isHomePage || isConstrainedDevice()) return;
-        preloadImages(collectDocumentImageUrls(), { decode: true });
-    }
-
-    const scheduleImageWarmup = window.requestIdleCallback
-        ? () => window.requestIdleCallback(warmCurrentPageImages, { timeout: 1600 })
-        : () => window.setTimeout(warmCurrentPageImages, 350);
-
-    window.addEventListener('load', scheduleImageWarmup, { once: true });
-
     function scheduleIdleTask(task, timeout = 1600) {
         if (window.requestIdleCallback) {
             window.requestIdleCallback(task, { timeout });
             return;
         }
         window.setTimeout(task, Math.min(timeout, 500));
-    }
-
-    const idlePreloadQueue = [];
-    const idlePreloadQueued = new Set();
-    let idlePreloadRunning = false;
-
-    function runIdlePreloadQueue() {
-        if (idlePreloadRunning || !idlePreloadQueue.length) return;
-
-        idlePreloadRunning = true;
-        scheduleIdleTask(deadline => {
-            const batch = [];
-            const maxBatch = isConstrainedDevice() ? 2 : 5;
-
-            while (
-                idlePreloadQueue.length &&
-                batch.length < maxBatch &&
-                (!deadline || deadline.didTimeout || deadline.timeRemaining() > 5)
-            ) {
-                batch.push(idlePreloadQueue.shift());
-            }
-
-            if (!batch.length && idlePreloadQueue.length) {
-                batch.push(idlePreloadQueue.shift());
-            }
-
-            const finish = () => {
-                idlePreloadRunning = false;
-                if (idlePreloadQueue.length) {
-                    window.setTimeout(runIdlePreloadQueue, isConstrainedDevice() ? 900 : 180);
-                }
-            };
-
-            preloadImages(batch, { fetchPriority: 'low' }).then(finish, finish);
-        }, isConstrainedDevice() ? 2400 : 1400);
-    }
-
-    function queueIdlePreloads(urls, options = {}) {
-        const uniqueUrls = [...new Set((urls || []).filter(Boolean))];
-        const orderedUrls = options.priority ? uniqueUrls.slice().reverse() : uniqueUrls;
-
-        orderedUrls.forEach(src => {
-            if (idlePreloadQueued.has(src)) return;
-            idlePreloadQueued.add(src);
-            if (options.priority) {
-                idlePreloadQueue.unshift(src);
-            } else {
-                idlePreloadQueue.push(src);
-            }
-        });
-
-        runIdlePreloadQueue();
-    }
-
-    function preloadHomeSecondaryImages() {
-        if (!isHomePage) return;
-        queueIdlePreloads(homeSecondaryImagePreloads, { priority: true });
-        queueIdlePreloads(allPageIdlePreloads);
     }
 
     function waitForImageElement(image, timeout = 2200) {
@@ -494,7 +300,6 @@
         const criticalImagesReady = Promise.all(getInitialCriticalImages().map(image => waitForImageElement(image)));
         initialLoader(criticalImagesReady, () => {
             loader.classList.add('loaded');
-            scheduleIdleTask(preloadHomeSecondaryImages, isConstrainedDevice() ? 2200 : 1200);
         });
     }
 
@@ -517,13 +322,11 @@
         document.querySelectorAll('a[href$=".html"]').forEach(link => {
             link.addEventListener('pointerenter', () => {
                 const targetUrl = link.getAttribute('href') || '';
-                const urls = isConstrainedDevice() ? getCriticalTransitionPreloadUrls(targetUrl) : getTransitionPreloadUrls(targetUrl);
-                preloadImages(urls);
+                preloadImages(getCriticalTransitionPreloadUrls(targetUrl));
             }, { once: true });
             link.addEventListener('focus', () => {
                 const targetUrl = link.getAttribute('href') || '';
-                const urls = isConstrainedDevice() ? getCriticalTransitionPreloadUrls(targetUrl) : getTransitionPreloadUrls(targetUrl);
-                preloadImages(urls);
+                preloadImages(getCriticalTransitionPreloadUrls(targetUrl));
             }, { once: true });
             link.addEventListener('pointerdown', () => {
                 const targetUrl = link.getAttribute('href') || '';
@@ -542,10 +345,6 @@
                     linkRel: 'preload',
                     fetchPriority: 'high'
                 });
-                const restUrls = getTransitionPreloadUrls(targetUrl).filter(src => !getCriticalTransitionPreloadUrls(targetUrl).includes(src));
-                if (!isConstrainedDevice()) {
-                    preloadImages(restUrls);
-                }
 
                 // 统一使用 1000ms
                 customLoader(1000, () => {
@@ -604,7 +403,7 @@
             } else {
                 nav.classList.remove('scrolled');
             }
-        });
+        }, { passive: true });
     }
 
     if (navToggle && navMenu) {
@@ -703,17 +502,21 @@
     }
 
     // ===== 视差效果 =====
+    const heroContent = document.querySelector('.hero-content');
+    let parallaxFrame = null;
+
     window.addEventListener('scroll', () => {
-        const scrolled = window.scrollY;
+        if (parallaxFrame || !heroContent) return;
 
-        // Hero 视差
-        const heroContent = document.querySelector('.hero-content');
-        if (heroContent && scrolled < window.innerHeight) {
-            heroContent.style.transform = `translateY(-50%) translateY(${scrolled * 0.3}px)`;
-            heroContent.style.opacity = 1 - (scrolled / window.innerHeight) * 0.5;
-        }
-
-    });
+        parallaxFrame = requestAnimationFrame(() => {
+            const scrolled = window.scrollY;
+            if (scrolled < window.innerHeight) {
+                heroContent.style.transform = `translateY(-50%) translateY(${scrolled * 0.3}px)`;
+                heroContent.style.opacity = 1 - (scrolled / window.innerHeight) * 0.5;
+            }
+            parallaxFrame = null;
+        });
+    }, { passive: true });
 
     // ===== 鼠标跟随效果 =====
     const enablePointerEffects = !isConstrainedDevice() && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
@@ -721,19 +524,52 @@
     if (enablePointerEffects) {
         let mouseX = 0, mouseY = 0;
         let currentX = 0, currentY = 0;
+        let pointerFrame = null;
+        let refreshCardRects = true;
+        const pointerCards = [...document.querySelectorAll('.visual-card, .grid-item, .stat-item')];
+        const visiblePointerCards = new Set();
+        const cardRects = new WeakMap();
+
+        if ('IntersectionObserver' in window) {
+            const pointerObserver = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        visiblePointerCards.add(entry.target);
+                        cardRects.set(entry.target, entry.target.getBoundingClientRect());
+                    } else {
+                        visiblePointerCards.delete(entry.target);
+                        entry.target.style.transform = '';
+                    }
+                });
+            }, { rootMargin: '120px 0px' });
+
+            pointerCards.forEach(card => pointerObserver.observe(card));
+        } else {
+            pointerCards.forEach(card => visiblePointerCards.add(card));
+        }
 
         document.addEventListener('mousemove', (e) => {
             mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
             mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
-        });
+            if (!pointerFrame) {
+                pointerFrame = requestAnimationFrame(animateCursor);
+            }
+        }, { passive: true });
 
         function animateCursor() {
             currentX += (mouseX - currentX) * 0.05;
             currentY += (mouseY - currentY) * 0.05;
 
-            // 对卡片应用微妙的倾斜效果
-            document.querySelectorAll('.visual-card, .grid-item, .stat-item').forEach(card => {
-                const rect = card.getBoundingClientRect();
+            if (refreshCardRects) {
+                visiblePointerCards.forEach(card => {
+                    cardRects.set(card, card.getBoundingClientRect());
+                });
+                refreshCardRects = false;
+            }
+
+            visiblePointerCards.forEach(card => {
+                const rect = cardRects.get(card);
+                if (!rect) return;
                 const cardCenterX = rect.left + rect.width / 2;
                 const cardCenterY = rect.top + rect.height / 2;
 
@@ -743,21 +579,32 @@
                 card.style.transform = `perspective(1000px) rotateX(${angleX}deg) rotateY(${angleY}deg)`;
             });
 
-            requestAnimationFrame(animateCursor);
+            const stillMoving = Math.abs(mouseX - currentX) > 0.002 || Math.abs(mouseY - currentY) > 0.002;
+            pointerFrame = stillMoving && !document.hidden
+                ? requestAnimationFrame(animateCursor)
+                : null;
         }
 
-        animateCursor();
+        const markCardRectsDirty = () => {
+            refreshCardRects = true;
+        };
+
+        window.addEventListener('resize', markCardRectsDirty, { passive: true });
+        window.addEventListener('scroll', markCardRectsDirty, { passive: true });
     }
 
     // ===== 视频处理 =====
     const heroVideo = document.getElementById('heroVideo');
+    const heroSection = document.getElementById('hero');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let heroVideoInView = true;
 
     function hasVideoSource(video) {
         return Boolean(video && (video.currentSrc || video.querySelector('source')));
     }
 
     function loadHeroVideoWhenAppropriate() {
-        if (!heroVideo || isConstrainedDevice() || heroVideo.dataset.loaded === 'true') return;
+        if (!heroVideo || isConstrainedDevice() || reduceMotion || heroVideo.dataset.loaded === 'true') return;
 
         const src = heroVideo.dataset.src;
         if (!src) return;
@@ -774,10 +621,24 @@
     if (heroVideo) {
         heroVideo.addEventListener('canplay', () => {
             heroVideo.classList.add('is-ready');
-            heroVideo.play().catch(err => {
-                console.log('视频自动播放被阻止，用户交互后播放');
-            });
+            if (heroVideoInView && !document.hidden) {
+                heroVideo.play().catch(() => {
+                    console.log('视频自动播放被阻止，用户交互后播放');
+                });
+            }
         });
+
+        if (heroSection && 'IntersectionObserver' in window) {
+            const heroVideoObserver = new IntersectionObserver(entries => {
+                heroVideoInView = Boolean(entries[0]?.isIntersecting);
+                if (!heroVideoInView) {
+                    heroVideo.pause();
+                } else if (hasVideoSource(heroVideo) && !document.hidden) {
+                    heroVideo.play().catch(() => undefined);
+                }
+            }, { threshold: 0.12 });
+            heroVideoObserver.observe(heroSection);
+        }
 
         window.addEventListener('load', () => {
             scheduleIdleTask(loadHeroVideoWhenAppropriate, 2600);
@@ -787,8 +648,8 @@
         if (document.getElementById('hero')) {
             document.addEventListener('click', () => {
                 loadHeroVideoWhenAppropriate();
-                if (hasVideoSource(heroVideo) && heroVideo.paused) {
-                    heroVideo.play();
+                if (heroVideoInView && hasVideoSource(heroVideo) && heroVideo.paused) {
+                    heroVideo.play().catch(() => undefined);
                 }
             }, { once: true });
         }
@@ -813,8 +674,8 @@
                 heroVideo.pause();
             }
         } else {
-            if (heroVideo && hasVideoSource(heroVideo) && heroVideo.paused) {
-                heroVideo.play();
+            if (heroVideo && heroVideoInView && hasVideoSource(heroVideo) && heroVideo.paused) {
+                heroVideo.play().catch(() => undefined);
             }
         }
     });

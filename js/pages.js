@@ -30,105 +30,6 @@
         }
     }
 
-    const transitionImagePreloads = {
-        'research.html': [
-            'images/RESEARCH/research.webp',
-            'images/RESEARCH/dart_catalog.webp',
-            'images/RESEARCH/still_working.webp',
-            'images/RESEARCH/spherex.webp'
-        ],
-        'life.html': [
-            'images/LIFE/life.webp',
-            'images/LIFE/ChinaMap1-dark.webp',
-            'images/LIFE/TRAVEL/beyond.webp',
-            'images/LIFE/MOTOR/motor5.webp',
-            'images/LIFE/ART/dingprize.webp'
-        ],
-        'motion.html': [
-            'images/MOTION/sports.webp',
-            'images/MOTION/OR/or1.webp',
-            'images/MOTION/bilibili.webp',
-            'images/MOTION/TRACK/track1.webp'
-        ],
-        'about.html': [
-            'images/ABOUT/jiaozhi.webp',
-            'images/ABOUT/id.webp'
-        ],
-        'index.html': [
-            'images/home.webp',
-            'images/research.webp',
-            'images/spherex.webp',
-            'images/life-bg.webp',
-            'images/life-map.webp',
-            'images/sports.webp'
-        ]
-    };
-
-    const expandedTransitionImagePreloads = {
-        'research.html': [
-            'images/RESEARCH/pulsar_searching.webp'
-        ],
-        'life.html': [
-            'images/LIFE/MOTOR/motor6.webp',
-            'images/LIFE/ART/dingprize-en.webp',
-            'images/LIFE/ART/art4.webp',
-            'images/LIFE/TRAVEL/France/fr.webp',
-            'images/LIFE/TRAVEL/Italy/it.webp',
-            'images/LIFE/TRAVEL/NewZealand/nz.webp',
-            'images/LIFE/TRAVEL/Qatar/qatar.webp',
-            'images/LIFE/TRAVEL/CHINA/Anhui/ah.webp',
-            'images/LIFE/TRAVEL/CHINA/Aomen/am.webp',
-            'images/LIFE/TRAVEL/CHINA/Beijing/bj.webp',
-            'images/LIFE/TRAVEL/CHINA/Chongqing/cq.webp',
-            'images/LIFE/TRAVEL/CHINA/Guangdong/gd.webp',
-            'images/LIFE/TRAVEL/CHINA/Guizhou/gz.webp',
-            'images/LIFE/TRAVEL/CHINA/Hainan/hn.webp',
-            'images/LIFE/TRAVEL/CHINA/Hebei/hb.webp',
-            'images/LIFE/TRAVEL/CHINA/Henan/hn.webp',
-            'images/LIFE/TRAVEL/CHINA/Hubei/hb.webp',
-            'images/LIFE/TRAVEL/CHINA/Hunan/hn.webp',
-            'images/LIFE/TRAVEL/CHINA/Jiangsu/js.webp',
-            'images/LIFE/TRAVEL/CHINA/Jiangxi/jx.webp',
-            'images/LIFE/TRAVEL/CHINA/Jilin/jl.webp',
-            'images/LIFE/TRAVEL/CHINA/Liaoning/ln.webp',
-            'images/LIFE/TRAVEL/CHINA/Neimenggu/nm.webp',
-            'images/LIFE/TRAVEL/CHINA/Ningxia/nx.webp',
-            'images/LIFE/TRAVEL/CHINA/SIchuan/sc.webp',
-            'images/LIFE/TRAVEL/CHINA/Shandong/sd.webp',
-            'images/LIFE/TRAVEL/CHINA/Shanghai/sh.webp',
-            'images/LIFE/TRAVEL/CHINA/Shanxi_Jin/sx.webp',
-            'images/LIFE/TRAVEL/CHINA/Shanxi/sx.webp',
-            'images/LIFE/TRAVEL/CHINA/Tianjin/tj.webp',
-            'images/LIFE/TRAVEL/CHINA/Xianggang/xg.webp',
-            'images/LIFE/TRAVEL/CHINA/Yunnan/yn.webp',
-            'images/LIFE/TRAVEL/CHINA/Zhejiang/zj.webp'
-        ],
-        'motion.html': [
-            'images/MOTION/OR/or2.webp',
-            'images/MOTION/OR/or3.webp',
-            'images/MOTION/OR/or4.webp',
-            'images/MOTION/OR/or5.webp',
-            'images/MOTION/OR/or6.webp',
-            'images/MOTION/OR/or7.webp',
-            'images/MOTION/OR/or8.webp',
-            'images/MOTION/TRACK/track2.webp',
-            'images/MOTION/TRACK/track3.webp',
-            'images/MOTION/TRACK/track4.webp',
-            'images/MOTION/TRACK/track5.webp',
-            'images/MOTION/TRACK/track6.webp',
-            'images/MOTION/TRACK/track7.webp',
-            'images/MOTION/TRACK/track8.webp',
-            'images/MOTION/TRACK/track9.webp'
-        ],
-        'index.html': [
-            'images/jiaozhi.webp'
-        ]
-    };
-
-    Object.entries(expandedTransitionImagePreloads).forEach(([page, urls]) => {
-        transitionImagePreloads[page] = [...new Set([...(transitionImagePreloads[page] || []), ...urls])];
-    });
-
     const criticalTransitionImagePreloads = {
         'research.html': [
             'images/RESEARCH/research.webp'
@@ -147,16 +48,9 @@
         ]
     };
 
-    const allPageIdlePreloads = [...new Set(Object.values(criticalTransitionImagePreloads).flat())];
-
-    function getTransitionPreloadUrls(targetUrl) {
-        const page = targetUrl.split('#')[0].split('?')[0].split('/').pop() || 'index.html';
-        return transitionImagePreloads[page] || [];
-    }
-
     function getCriticalTransitionPreloadUrls(targetUrl) {
         const page = targetUrl.split('#')[0].split('?')[0].split('/').pop() || 'index.html';
-        return criticalTransitionImagePreloads[page] || getTransitionPreloadUrls(targetUrl).slice(0, 4);
+        return criticalTransitionImagePreloads[page] || [];
     }
 
     function isConstrainedDevice() {
@@ -395,43 +289,6 @@
         return [...new Set(nearby)].filter(Boolean);
     }
 
-    function collectDocumentImageUrls() {
-        const urls = new Set();
-        const imagePattern = /images\/[^,\s"')]+?\.(?:webp|png|jpe?g|gif|svg)/gi;
-
-        document.querySelectorAll('img[src]').forEach(image => {
-            if (!image.hasAttribute('srcset')) {
-                urls.add(image.getAttribute('src'));
-            }
-        });
-        document.querySelectorAll('[data-carousel-photos], [data-carousel-photos-en], [data-carousel-link-photo], [data-carousel-link-photo-en], [data-photo], [data-photos]').forEach(element => {
-            [...element.attributes].forEach(attribute => {
-                let match;
-                while ((match = imagePattern.exec(attribute.value))) {
-                    urls.add(match[0]);
-                }
-                imagePattern.lastIndex = 0;
-            });
-        });
-
-        return [...urls];
-    }
-
-    function warmCurrentPageImages() {
-        if (isConstrainedDevice()) {
-            queueMobileImageWarmup(collectDocumentImageUrls(), { priority: true });
-            queueMobileImageWarmup(allPageIdlePreloads);
-            return;
-        }
-        preloadImages(collectDocumentImageUrls(), { decode: true }).then(() => {
-            preloadImages(allPageIdlePreloads, { fetchPriority: 'low' });
-        });
-    }
-
-    const scheduleImageWarmup = () => scheduleIdleTask(warmCurrentPageImages, 1600, 350);
-
-    window.addEventListener('load', scheduleImageWarmup, { once: true });
-
     function clearPageTransition() {
         if (activeTransitionInterval) {
             clearInterval(activeTransitionInterval);
@@ -458,13 +315,11 @@
     document.querySelectorAll('a[href$=".html"]').forEach(link => {
         link.addEventListener('pointerenter', () => {
             const targetUrl = link.getAttribute('href') || '';
-            const urls = isConstrainedDevice() ? getCriticalTransitionPreloadUrls(targetUrl) : getTransitionPreloadUrls(targetUrl);
-            preloadImages(urls);
+            preloadImages(getCriticalTransitionPreloadUrls(targetUrl));
         }, { once: true });
         link.addEventListener('focus', () => {
             const targetUrl = link.getAttribute('href') || '';
-            const urls = isConstrainedDevice() ? getCriticalTransitionPreloadUrls(targetUrl) : getTransitionPreloadUrls(targetUrl);
-            preloadImages(urls);
+            preloadImages(getCriticalTransitionPreloadUrls(targetUrl));
         }, { once: true });
         link.addEventListener('pointerdown', () => {
             const targetUrl = link.getAttribute('href') || '';
@@ -482,10 +337,6 @@
                 linkRel: 'preload',
                 fetchPriority: 'high'
             });
-            const restUrls = getTransitionPreloadUrls(targetUrl).filter(src => !getCriticalTransitionPreloadUrls(targetUrl).includes(src));
-            if (!isConstrainedDevice()) {
-                preloadImages(restUrls);
-            }
 
             // 返回主页的链接直接跳转，由主页 main.js 处理加载动画
             if (targetUrl.includes('index.html')) {
@@ -580,7 +431,7 @@
         } else {
             nav.classList.remove('scrolled');
         }
-    });
+    }, { passive: true });
 
     // ===== 科研页目录锚点 =====
     const researchLayout = document.querySelector('.research-layout');
@@ -740,23 +591,20 @@
         let photos = getCarouselPhotos();
 
         if (!image || photos.length === 0) return;
-        image.loading = 'eager';
         image.decoding = 'async';
 
         function warmCarouselPhotos() {
             if (isConstrainedDevice()) {
                 preloadImages(photos.slice(0, 2), { decode: false });
-                queueMobileImageWarmup(photos.slice(2));
                 return;
             }
 
-            preloadImages(photos, { decode: true });
+            preloadImages(photos.slice(0, 2), { fetchPriority: 'low' });
         }
-
-        warmCarouselPhotos();
 
         let currentIndex = 0;
         let renderToken = 0;
+        let carouselActivated = false;
 
         function updateCarouselOrientation() {
             const { naturalWidth, naturalHeight } = image;
@@ -778,8 +626,11 @@
             const displaySrc = getMobileImageSrc(targetSrc);
             const token = ++renderToken;
 
+            const nearbyPhotos = getNearbyImageUrls(photos, targetIndex, isConstrainedDevice() ? 2 : 1);
             if (isConstrainedDevice()) {
-                queueMobileImageWarmup(getNearbyImageUrls(photos, targetIndex, 2), { priority: true });
+                queueMobileImageWarmup(nearbyPhotos, { priority: true });
+            } else {
+                preloadImages(nearbyPhotos, { fetchPriority: 'low' });
             }
 
             preloadImage(targetSrc, { decode: true }).then(nextImage => {
@@ -837,24 +688,44 @@
                 const dot = document.createElement('button');
                 dot.type = 'button';
                 dot.setAttribute('aria-label', `查看第 ${dotIndex + 1} 张${carouselName}`);
-                dot.addEventListener('click', () => renderCarousel(dotIndex));
+                dot.addEventListener('click', () => activateCarousel(dotIndex));
                 dots.appendChild(dot);
             });
         }
 
+        function activateCarousel(index = currentIndex) {
+            if (!carouselActivated) {
+                carouselActivated = true;
+                warmCarouselPhotos();
+            }
+            renderCarousel(index);
+        }
+
         renderDots();
 
-        prevButton?.addEventListener('click', () => renderCarousel(currentIndex - 1));
-        nextButton?.addEventListener('click', () => renderCarousel(currentIndex + 1));
+        prevButton?.addEventListener('click', () => activateCarousel(currentIndex - 1));
+        nextButton?.addEventListener('click', () => activateCarousel(currentIndex + 1));
         window.addEventListener('languagechange', () => {
             photos = getCarouselPhotos();
             if (photos.length === 0) return;
-            warmCarouselPhotos();
             currentIndex = Math.min(currentIndex, photos.length - 1);
             renderDots();
-            renderCarousel(currentIndex);
+            if (carouselActivated) {
+                warmCarouselPhotos();
+                renderCarousel(currentIndex);
+            }
         });
-        renderCarousel(0);
+
+        if ('IntersectionObserver' in window) {
+            const carouselObserver = new IntersectionObserver(entries => {
+                if (!entries.some(entry => entry.isIntersecting)) return;
+                carouselObserver.disconnect();
+                activateCarousel(0);
+            }, { rootMargin: '500px 0px' });
+            carouselObserver.observe(carousel);
+        } else {
+            scheduleIdleTask(() => activateCarousel(0), 2200, 700);
+        }
     });
 
     // ===== 旅行地图交互 =====
@@ -994,8 +865,6 @@
     let currentTravelPhotoIndex = 0;
     let travelPhotoTimer = null;
     let travelPhotoRenderToken = 0;
-    const allTravelPhotoUrls = [defaultTravelPhotos, ...Object.values(countryTravelPhotos), ...Object.values(chinaProvinceTravelPhotos)]
-        .reduce((allPhotos, photos) => allPhotos.concat(photos), []);
 
     function warmTravelPhotos(photos) {
         if (isConstrainedDevice()) {
@@ -1012,17 +881,6 @@
             queueMobileImageWarmup(getNearbyImageUrls(currentTravelPhotos, index, 2), { priority: true });
         }
     }
-
-    const scheduleTravelPhotoWarmup = () => scheduleIdleTask(() => {
-        if (isConstrainedDevice()) {
-            queueMobileImageWarmup(allTravelPhotoUrls);
-            return;
-        }
-
-        preloadImages(allTravelPhotoUrls, { decode: true });
-    }, 2200, 650);
-
-    scheduleTravelPhotoWarmup();
 
     function getTravelPhotos(place) {
         if (!place?.dataset.photos) {
@@ -1054,7 +912,7 @@
         const lightboxImage = document.getElementById('lightboxImage');
         const lightboxCaption = document.getElementById('lightboxCaption');
 
-        if (!currentTravelPhotos.length) return;
+        if ((!photo && !lightboxImage) || !currentTravelPhotos.length) return;
 
         currentTravelPhotoIndex = (index + currentTravelPhotos.length) % currentTravelPhotos.length;
         const photoSrc = currentTravelPhotos[currentTravelPhotoIndex];
@@ -1125,6 +983,8 @@
         const title = document.getElementById('travelPhotoTitle');
         const caption = document.getElementById('travelPhotoCaption');
         const lang = body.getAttribute('data-lang') || 'zh';
+
+        if (!document.getElementById('travelPhoto')) return;
 
         if (title) {
             title.textContent = lang === 'zh' ? '旅行影像' : 'Travel Images';
@@ -2099,12 +1959,68 @@
             });
     }
 
-    initTravelGlobe();
+    const deferredScriptLoads = new Map();
+    let travelGlobeLoadPromise = null;
+
+    function loadDeferredScript(src) {
+        if (deferredScriptLoads.has(src)) {
+            return deferredScriptLoads.get(src);
+        }
+
+        const promise = new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = src;
+            script.async = true;
+            script.onload = resolve;
+            script.onerror = () => reject(new Error(`Unable to load ${src}`));
+            document.head.appendChild(script);
+        });
+
+        deferredScriptLoads.set(src, promise);
+        return promise;
+    }
+
+    function ensureTravelGlobeLoaded() {
+        const globeElement = document.getElementById('travelGlobe');
+        if (!globeElement) return Promise.resolve();
+        if (travelGlobeLoadPromise) return travelGlobeLoadPromise;
+
+        globeElement.setAttribute('aria-busy', 'true');
+        travelGlobeLoadPromise = Promise.all([
+            loadDeferredScript('js/vendor/d3.min.js'),
+            loadDeferredScript('js/vendor/topojson-client.min.js'),
+            loadDeferredScript('data/countries-110m.js'),
+            loadDeferredScript('data/china-provinces.js')
+        ]).then(() => {
+            initTravelGlobe();
+            globeElement.removeAttribute('aria-busy');
+        }).catch(error => {
+            globeElement.removeAttribute('aria-busy');
+            console.warn(error);
+        });
+
+        return travelGlobeLoadPromise;
+    }
+
+    const travelMapLoadTarget = document.querySelector('.travel-showcase');
+    if (travelMapLoadTarget && 'IntersectionObserver' in window) {
+        const travelMapObserver = new IntersectionObserver(entries => {
+            if (!entries.some(entry => entry.isIntersecting)) return;
+            travelMapObserver.disconnect();
+            ensureTravelGlobeLoaded();
+        }, { rootMargin: '600px 0px' });
+        travelMapObserver.observe(travelMapLoadTarget);
+    } else if (travelMapLoadTarget) {
+        scheduleIdleTask(ensureTravelGlobeLoaded, 2800, 900);
+    }
 
     document.querySelectorAll('.map-tab').forEach(tabButton => {
         tabButton.addEventListener('click', () => {
             const target = tabButton.dataset.mapTarget;
             if (!target) return;
+            if (target === 'world') {
+                ensureTravelGlobeLoaded();
+            }
 
             document.querySelectorAll('.map-tab').forEach(button => {
                 button.classList.toggle('active', button === tabButton);
@@ -2156,24 +2072,29 @@
     restartTravelPhotoTimer();
 
     // ===== 视差效果 =====
+    const pageHero = document.getElementById('pageHero');
+    const pageHeroContent = pageHero?.querySelector('.page-hero-content');
+    const pageHeroBg = pageHero?.querySelector('.page-hero-bg');
+    let pageParallaxFrame = null;
+
     window.addEventListener('scroll', () => {
-        const scrolled = window.scrollY;
-        const pageHero = document.getElementById('pageHero');
+        if (!pageHero || pageParallaxFrame) return;
 
-        if (pageHero && scrolled < window.innerHeight) {
-            const heroContent = pageHero.querySelector('.page-hero-content');
-            const heroBg = pageHero.querySelector('.page-hero-bg');
+        pageParallaxFrame = requestAnimationFrame(() => {
+            const scrolled = window.scrollY;
+            if (scrolled < window.innerHeight) {
+                if (pageHeroContent) {
+                    pageHeroContent.style.transform = `translate(-50%, -50%) translateY(${scrolled * 0.3}px)`;
+                    pageHeroContent.style.opacity = 1 - (scrolled / window.innerHeight) * 0.8;
+                }
 
-            if (heroContent) {
-                heroContent.style.transform = `translate(-50%, -50%) translateY(${scrolled * 0.3}px)`;
-                heroContent.style.opacity = 1 - (scrolled / window.innerHeight) * 0.8;
+                if (pageHeroBg) {
+                    pageHeroBg.style.transform = `translateY(${scrolled * 0.5}px)`;
+                }
             }
-
-            if (heroBg) {
-                heroBg.style.transform = `translateY(${scrolled * 0.5}px)`;
-            }
-        }
-    });
+            pageParallaxFrame = null;
+        });
+    }, { passive: true });
 
     // ===== 视频处理 =====
     const heroVideo = document.getElementById('heroVideo');
