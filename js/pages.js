@@ -66,15 +66,11 @@
 
     const expandedTransitionImagePreloads = {
         'research.html': [
-            'images/RESEARCH/pulsar_searching.webp',
-            'images/RESEARCH/frb_rate.png'
+            'images/RESEARCH/pulsar_searching.webp'
         ],
         'life.html': [
             'images/LIFE/MOTOR/motor6.webp',
             'images/LIFE/ART/dingprize-en.webp',
-            'images/LIFE/ART/art1.webp',
-            'images/LIFE/ART/art2.png',
-            'images/LIFE/ART/art3.webp',
             'images/LIFE/ART/art4.webp',
             'images/LIFE/TRAVEL/France/fr.webp',
             'images/LIFE/TRAVEL/Italy/it.webp',

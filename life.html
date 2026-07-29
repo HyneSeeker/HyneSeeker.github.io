@@ -7,7 +7,7 @@
     <link rel="preload" as="image" href="images/mobile/1024/LIFE/life.webp" media="(max-width: 768px)" fetchpriority="high">
     <link rel="preload" as="image" href="images/LIFE/life.webp" media="(min-width: 769px)" fetchpriority="high">
     <link rel="stylesheet" href="css/style.css?v=mobile-home-20260605">
-    <link rel="stylesheet" href="css/pages.css?v=mobile-home-20260605">
+    <link rel="stylesheet" href="css/pages.css?v=life-media-20260729">
 </head>
 <body data-lang="zh">
     <!-- 导航栏 -->
@@ -200,16 +200,16 @@
                     <div class="life-section-header media-log-header">
                         <span class="section-kicker">Media Log</span>
                         <h3 class="life-section-title media-log-title">
-                            <span class="lang-zh">电影 / 书籍</span>
-                            <span class="lang-en">Movies / Books</span>
+                            <span class="lang-zh">文艺作品</span>
+                            <span class="lang-en">Stories</span>
                         </h3>
                         <p class="life-section-intro">
-                            <span class="lang-zh">把一年里的阅读和观影留在这里，像给精神生活做一份慢慢累积的清单。</span>
-                            <span class="lang-en">A slow-growing ledger of reading and films, keeping a small record of the year's inner life.</span>
+                            <span class="lang-zh">把一年里的阅读、追剧和观影留在这里，像给精神生活做一份慢慢累积的清单。</span>
+                            <span class="lang-en">A slow-growing ledger of books, series, and films, keeping a small record of the year's inner life.</span>
                         </p>
                     </div>
 
-                    <div class="media-log-stats" aria-label="2026 reading and movie totals">
+                    <div class="media-log-stats" aria-label="2026 book, series, and movie totals">
                         <div class="media-log-stat">
                             <span class="media-log-number" data-media-count="books">0</span>
                             <span class="media-log-label">
@@ -219,6 +219,17 @@
                             <span class="media-log-unit">
                                 <span class="lang-zh">本</span>
                                 <span class="lang-en">books</span>
+                            </span>
+                        </div>
+                        <div class="media-log-stat media-log-stat-series">
+                            <span class="media-log-number" data-media-count="series">0</span>
+                            <span class="media-log-label">
+                                <span class="lang-zh">累计追剧</span>
+                                <span class="lang-en">Series Watched</span>
+                            </span>
+                            <span class="media-log-unit">
+                                <span class="lang-zh">部</span>
+                                <span class="lang-en">series</span>
                             </span>
                         </div>
                         <div class="media-log-stat media-log-stat-movie">
@@ -247,10 +258,35 @@
                                 </li>
                                 <li data-counted="false">
                                     <span class="lang-zh">《The infinity machine》</span>
-                                    <span class="lang-en">The Godfather</span>
+                                    <span class="lang-en">The infinity machine</span>
                                     <span class="media-log-status">
                                         <span class="lang-zh">阅读中</span>
                                         <span class="lang-en">Reading</span>
+                                    </span>
+                                </li>
+                            </ul>
+                        </section>
+
+                        <section class="media-log-panel" aria-labelledby="seriesLogTitle">
+                            <h4 id="seriesLogTitle">
+                                <span class="lang-zh">今年看过的剧</span>
+                                <span class="lang-en">Series This Year</span>
+                            </h4>
+                            <ul class="media-log-list" data-media-log="series">
+                                <li>
+                                    <span class="lang-zh">《铠甲勇士》</span>
+                                    <span class="lang-en">Armored Warriors</span>
+                                </li>
+                                <li>
+                                    <span class="lang-zh">《神探夏洛克 第一季》</span>
+                                    <span class="lang-en">Sherlock Holmes Season 1</span>
+                                </li>
+                                <li>
+                                    <span class="lang-zh">《神探夏洛克 第二季》</span>
+                                    <span class="lang-en">Sherlock Holmes Season 2</span>
+                                    <span class="media-log-status">
+                                        <span class="lang-zh">观看中</span>
+                                        <span class="lang-en">Watching</span>
                                     </span>
                                 </li>
                             </ul>
@@ -281,14 +317,6 @@
                                 <li>
                                     <span class="lang-zh">《千与千寻》</span>
                                     <span class="lang-en">Spirited Away</span>
-                                </li>
-                                <li>
-                                    <span class="lang-zh">《武状元苏乞儿》</span>
-                                    <span class="lang-en">King of Beggars</span>
-                                </li>
-                                <li>
-                                    <span class="lang-zh">《罗马假日》</span>
-                                    <span class="lang-en">Roman Holiday</span>
                                 </li>
                                 <li>
                                     <span class="lang-zh">《招魂》</span>
@@ -357,9 +385,13 @@
                         <span class="lang-zh">Log0：于 2026 年 5 月 28 日取得摩托车 D 驾照。</span>
                         <span class="lang-en">Log0: Obtained a motorcycle Class D license on May 28, 2026.</span>
                     </p>
+                    <p class="item-description motorcycle-license-note">
+                        <span class="lang-zh">Log1：于 2026 年 6 月 28 日开始驾驶本田裂行 RX125 SmartKey。</span>
+                        <span class="lang-en">Log1: Began riding the Honda RX125 SmartKey on June 28, 2026.</span>
+                    </p>
                     <div class="item-stats">
                         <div class="mini-stat">
-                            <span class="mini-stat-number">52</span>
+                            <span class="mini-stat-number">1000</span>
                             <span class="mini-stat-label">
                                 <span class="lang-zh">公里</span>
                                 <span class="lang-en">KM</span>
@@ -386,12 +418,12 @@
                 </div>
 
                 <div class="art-gallery-stage">
-                    <div class="sports-carousel art-main-carousel" data-sports-carousel data-carousel-name="艺术照片" data-carousel-alt="Art and life fragment" data-carousel-photos="images/LIFE/ART/dingprize.webp, images/LIFE/ART/art1.webp, images/LIFE/ART/art2.png, images/LIFE/ART/art3.webp, images/LIFE/ART/art4.webp" data-carousel-photos-en="images/LIFE/ART/dingprize-en.webp, images/LIFE/ART/art1.webp, images/LIFE/ART/art2.png, images/LIFE/ART/art3.webp, images/LIFE/ART/art4.webp" data-carousel-link-photo="images/LIFE/ART/dingprize.webp" data-carousel-link-photo-en="images/LIFE/ART/dingprize-en.webp" data-carousel-link-url="https://dingprize.ithacali.win/">
+                    <div class="sports-carousel art-main-carousel" data-sports-carousel data-carousel-name="艺术照片" data-carousel-alt="Art and life fragment" data-carousel-photos="images/LIFE/ART/dingprize.webp, images/LIFE/ART/art4.webp, images/LIFE/ART/art5.webp" data-carousel-photos-en="images/LIFE/ART/dingprize-en.webp, images/LIFE/ART/art4.webp, images/LIFE/ART/art5.webp" data-carousel-link-photo="images/LIFE/ART/dingprize.webp" data-carousel-link-photo-en="images/LIFE/ART/dingprize-en.webp" data-carousel-link-url="https://dingprize.ithacali.win/">
                         <div class="sports-carousel-viewport">
                             <a class="sports-carousel-link" data-carousel-link target="_blank" rel="noopener noreferrer" tabindex="-1">
                                 <img loading="lazy" decoding="async" src="images/LIFE/ART/dingprize.webp" alt="Art and life fragment placeholder" class="sports-photo sports-carousel-image" data-carousel-image>
                             </a>
-                            <span class="sports-carousel-counter" data-carousel-counter>1 / 5</span>
+                            <span class="sports-carousel-counter" data-carousel-counter>1 / 3</span>
                         </div>
                         <button class="sports-carousel-button sports-carousel-prev" type="button" data-carousel-prev aria-label="上一张艺术照片">‹</button>
                         <button class="sports-carousel-button sports-carousel-next" type="button" data-carousel-next aria-label="下一张艺术照片">›</button>
