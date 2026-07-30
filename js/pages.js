@@ -30,74 +30,6 @@
         }
     }
 
-    const pageTransitionDuration = 1000;
-
-    function completeIncomingPageTransition() {
-        const root = document.documentElement;
-        const arrivalLoader = document.getElementById('pageArrivalLoader');
-        if (
-            !root.classList.contains('page-transition-arriving') ||
-            !arrivalLoader ||
-            arrivalLoader.dataset.transitionActive === 'true'
-        ) return;
-
-        let startedAt = 0;
-        try {
-            startedAt = Number(sessionStorage.getItem('pageTransitionStartedAt'));
-        } catch (error) {}
-
-        const elapsed = startedAt ? Math.max(0, Date.now() - startedAt) : pageTransitionDuration;
-        const remaining = Math.max(0, pageTransitionDuration - elapsed);
-        const progressBar = arrivalLoader.querySelector('.progress-bar');
-
-        arrivalLoader.dataset.transitionActive = 'true';
-        arrivalLoader.setAttribute('aria-hidden', 'false');
-        if (progressBar) {
-            progressBar.style.transition = 'none';
-            progressBar.style.width = `${Math.min(100, elapsed / pageTransitionDuration * 100)}%`;
-            requestAnimationFrame(() => {
-                progressBar.style.transition = `width ${remaining}ms linear`;
-                progressBar.style.width = '100%';
-            });
-        }
-
-        const finish = () => {
-            root.classList.remove('page-transition-arriving');
-            arrivalLoader.dataset.transitionActive = 'false';
-            arrivalLoader.setAttribute('aria-hidden', 'true');
-            try {
-                sessionStorage.removeItem('pageTransitionStartedAt');
-                sessionStorage.removeItem('pageTransitionTarget');
-            } catch (error) {}
-        };
-
-        if (remaining > 0) {
-            window.setTimeout(finish, remaining);
-        } else {
-            finish();
-        }
-    }
-
-    completeIncomingPageTransition();
-
-    function activateStoredIncomingTransition() {
-        let startedAt = 0;
-        let targetPage = '';
-        try {
-            startedAt = Number(sessionStorage.getItem('pageTransitionStartedAt'));
-            targetPage = sessionStorage.getItem('pageTransitionTarget') || '';
-        } catch (error) {}
-
-        const currentPage = window.location.pathname.split('/').pop();
-        const elapsed = startedAt ? Date.now() - startedAt : pageTransitionDuration;
-        if (startedAt && elapsed < 10000 && (!targetPage || targetPage === currentPage)) {
-            document.documentElement.classList.add('page-transition-arriving');
-            completeIncomingPageTransition();
-        }
-    }
-
-    window.addEventListener('pageshow', activateStoredIncomingTransition);
-
     const criticalTransitionImagePreloads = {
         'research.html': [
             'images/RESEARCH/research.webp'
@@ -393,16 +325,6 @@
 
     // ===== 页面切换过渡 =====
     document.querySelectorAll('a[href$=".html"]').forEach(link => {
-        link.addEventListener('pointerenter', () => {
-            const targetUrl = link.getAttribute('href') || '';
-            preloadImages(getCriticalTransitionPreloadUrls(targetUrl));
-            warmNavigationTarget(targetUrl);
-        }, { once: true });
-        link.addEventListener('focus', () => {
-            const targetUrl = link.getAttribute('href') || '';
-            preloadImages(getCriticalTransitionPreloadUrls(targetUrl));
-            warmNavigationTarget(targetUrl);
-        }, { once: true });
         link.addEventListener('click', function(e) {
             if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
             const targetUrl = this.getAttribute('href');
@@ -412,6 +334,8 @@
                 return; // 不阻止默认行为，让浏览器直接跳转
             }
 
+            e.preventDefault();
+
             // 防止重复触发
             if (link.dataset.transitioning === 'true') return;
             clearPageTransition();
@@ -419,16 +343,15 @@
 
             // 统一使用 1000ms
             const transitionTime = 1000;
-            try {
-                const targetPage = (targetUrl || '').split('#')[0].split('?')[0].split('/').pop();
-                sessionStorage.setItem('pageTransitionStartedAt', String(Date.now()));
-                sessionStorage.setItem('pageTransitionTarget', targetPage || '');
-            } catch (error) {}
+            const destinationUrl = this.href;
+            window.setTimeout(() => {
+                window.location.assign(destinationUrl);
+            }, transitionTime);
 
             // 创建临时加载屏
             const loader = document.createElement('div');
             loader.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;pointer-events:none;';
-            loader.dataset.pageTransitionLoader = 'true';
+            loader.dataset.navigationLoader = 'true';
             loader.innerHTML = `
                 <div class="pages-logo" style="width:200px;opacity:0;">
                     <img src="images/Ding_ver1.png" alt="DING Logo" style="width:100%;height:auto;">
@@ -439,12 +362,6 @@
             `;
             activeTransitionLoader = loader;
             document.body.appendChild(loader);
-            // 若导航仍未完成，避免旧页面被临时遮罩永久覆盖。
-            window.setTimeout(() => {
-                if (!document.hidden && activeTransitionLoader === loader) {
-                    clearPageTransition();
-                }
-            }, 1250);
 
             // 移除链接的焦点，防止 :active 样式
             link.blur();

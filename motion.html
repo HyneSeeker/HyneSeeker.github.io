@@ -4,35 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>律动 | Motion</title>
-    <script>
-        (function () {
-            try {
-                const startedAt = Number(sessionStorage.getItem('pageTransitionStartedAt'));
-                const target = sessionStorage.getItem('pageTransitionTarget');
-                const currentPage = window.location.pathname.split('/').pop();
-                const elapsed = Date.now() - startedAt;
-                if (startedAt && elapsed < 10000 && (!target || target === currentPage)) {
-                    document.documentElement.classList.add('page-transition-arriving');
-                    window.setTimeout(() => document.documentElement.classList.remove('page-transition-arriving'), Math.max(0, 1000 - elapsed) + 150);
-                }
-            } catch (error) {}
-        }());
-    </script>
     <link rel="preload" as="image" href="images/mobile/1024/MOTION/sports.webp" media="(max-width: 768px)" fetchpriority="high">
     <link rel="preload" as="image" href="images/MOTION/sports.webp" media="(min-width: 769px)" fetchpriority="high">
-    <link rel="stylesheet" href="css/style.css?v=transition-safe-20260730">
-    <link rel="stylesheet" href="css/pages.css?v=transition-safe-20260730">
+    <link rel="stylesheet" href="css/style.css?v=transition-direct-20260730">
+    <link rel="stylesheet" href="css/pages.css?v=transition-direct-20260730">
 </head>
 <body data-lang="zh">
-    <div class="loader page-arrival-loader" id="pageArrivalLoader" aria-hidden="true">
-        <div class="loader-logo">
-            <img src="images/mobile/480/Ding_ver1.webp" alt="DING Logo" class="logo-img">
-        </div>
-        <div class="loader-progress">
-            <div class="progress-bar"></div>
-        </div>
-    </div>
-
     <!-- 导航栏 -->
     <nav class="nav" id="nav">
         <div class="nav-logo">
@@ -778,6 +755,6 @@
         </div>
     </footer>
 
-    <script src="js/pages.js?v=transition-safe-20260730"></script>
+    <script src="js/pages.js?v=transition-direct-20260730"></script>
 </body>
 </html>

@@ -204,8 +204,8 @@
 
     function warmSubpageShell(targetUrl, priority = 'low') {
         if (!(targetUrl || '').includes('index.html')) {
-            warmNavigationResource('css/pages.css?v=transition-safe-20260730', priority);
-            warmNavigationResource('js/pages.js?v=transition-safe-20260730', priority);
+            warmNavigationResource('css/pages.css?v=transition-direct-20260730', priority);
+            warmNavigationResource('js/pages.js?v=transition-direct-20260730', priority);
         }
     }
 
@@ -215,19 +215,10 @@
     }
 
     function startCrossPageTransition(targetUrl) {
-        try {
-            const targetPage = (targetUrl || '').split('#')[0].split('?')[0].split('/').pop();
-            sessionStorage.setItem('pageTransitionStartedAt', String(Date.now()));
-            sessionStorage.setItem('pageTransitionTarget', targetPage || '');
-        } catch (error) {}
-
-        customLoader(1000);
-        // 若目标文档迟迟没有接管，旧页面的遮罩也必须自动释放。
         window.setTimeout(() => {
-            if (loader && !document.hidden) {
-                loader.classList.add('loaded');
-            }
-        }, 1250);
+            window.location.assign(targetUrl);
+        }, 1000);
+        customLoader(1000);
     }
 
     applyMobileImageSources();
@@ -369,22 +360,12 @@
     // ===== 页面切换过渡 - 仅主页 =====
     if (isHomePage) {
         document.querySelectorAll('a[href$=".html"]').forEach(link => {
-            link.addEventListener('pointerenter', () => {
-                const targetUrl = link.getAttribute('href') || '';
-                preloadImages(getCriticalTransitionPreloadUrls(targetUrl));
-                warmNavigationTarget(targetUrl);
-            }, { once: true });
-            link.addEventListener('focus', () => {
-                const targetUrl = link.getAttribute('href') || '';
-                preloadImages(getCriticalTransitionPreloadUrls(targetUrl));
-                warmNavigationTarget(targetUrl);
-            }, { once: true });
             link.addEventListener('click', function(e) {
                 if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-                const targetUrl = this.getAttribute('href');
+                e.preventDefault();
+                const targetUrl = this.href;
 
-                // 不阻止链接的默认行为：由浏览器立即、可靠地开始导航。
-                // 加载界面会在目标页面延续到满 1000ms。
+                // 当前页面完整展示 1000ms 加载动画，然后直接进入目标页。
                 startCrossPageTransition(targetUrl);
             });
         });
