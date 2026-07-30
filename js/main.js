@@ -137,6 +137,7 @@
 
     const preloadedImages = new Set();
     const imagePreloadCache = new Map();
+    const navigationFetchCache = new Map();
 
     function preloadImage(src, options = {}) {
         const preloadSrc = getMobileImageSrc(src);
@@ -187,6 +188,26 @@
         });
 
         return Promise.all(tasks);
+    }
+
+    function warmNavigationResource(url, priority = 'low') {
+        const resourceUrl = (url || '').split('#')[0];
+        if (!resourceUrl || navigationFetchCache.has(resourceUrl)) return;
+
+        const request = fetch(resourceUrl, {
+            cache: 'force-cache',
+            credentials: 'same-origin',
+            priority
+        }).catch(() => null);
+        navigationFetchCache.set(resourceUrl, request);
+    }
+
+    function warmNavigationTarget(targetUrl, priority = 'low') {
+        warmNavigationResource(targetUrl, priority);
+        if (!(targetUrl || '').includes('index.html')) {
+            warmNavigationResource('css/pages.css?v=performance-20260730', priority);
+            warmNavigationResource('js/pages.js?v=performance-20260730', priority);
+        }
     }
 
     applyMobileImageSources();
@@ -323,10 +344,12 @@
             link.addEventListener('pointerenter', () => {
                 const targetUrl = link.getAttribute('href') || '';
                 preloadImages(getCriticalTransitionPreloadUrls(targetUrl));
+                warmNavigationTarget(targetUrl);
             }, { once: true });
             link.addEventListener('focus', () => {
                 const targetUrl = link.getAttribute('href') || '';
                 preloadImages(getCriticalTransitionPreloadUrls(targetUrl));
+                warmNavigationTarget(targetUrl);
             }, { once: true });
             link.addEventListener('pointerdown', () => {
                 const targetUrl = link.getAttribute('href') || '';
@@ -334,27 +357,22 @@
                     linkRel: 'preload',
                     fetchPriority: 'high'
                 });
+                warmNavigationTarget(targetUrl, 'high');
             }, { once: true, passive: true });
 
             link.addEventListener('click', function(e) {
                 if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
                 e.preventDefault();
                 const targetUrl = this.getAttribute('href');
-                const criticalPreload = preloadImages(getCriticalTransitionPreloadUrls(targetUrl), {
-                    decode: true,
+                preloadImages(getCriticalTransitionPreloadUrls(targetUrl), {
                     linkRel: 'preload',
                     fetchPriority: 'high'
                 });
+                warmNavigationTarget(targetUrl, 'high');
 
                 // 统一使用 1000ms
                 customLoader(1000, () => {
-                    const navigationReady = isConstrainedDevice()
-                        ? criticalPreload
-                        : waitBriefly(criticalPreload, 650);
-
-                    navigationReady.then(() => {
-                        window.location.href = targetUrl;
-                    });
+                    window.location.href = targetUrl;
                 });
             });
         });

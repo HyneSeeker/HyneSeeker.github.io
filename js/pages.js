@@ -59,13 +59,6 @@
             Boolean(connection && (connection.saveData || /2g/.test(connection.effectiveType || '')));
     }
 
-    function waitBriefly(promise, timeout = 650) {
-        return Promise.race([
-            promise,
-            new Promise(resolve => window.setTimeout(resolve, timeout))
-        ]);
-    }
-
     const fullBleedMobileImages = new Set([
         'images/research.webp',
         'images/home.webp',
@@ -128,9 +121,9 @@
 
     const preloadedImages = new Set();
     const imagePreloadCache = new Map();
+    const navigationFetchCache = new Map();
     let activeTransitionLoader = null;
     let activeTransitionInterval = null;
-    let activeTransitionTimeout = null;
 
     function preloadImage(src, options = {}) {
         const preloadSrc = getMobileImageSrc(src);
@@ -191,6 +184,18 @@
         });
 
         return Promise.all(tasks);
+    }
+
+    function warmNavigationTarget(targetUrl, priority = 'low') {
+        const resourceUrl = (targetUrl || '').split('#')[0];
+        if (!resourceUrl || navigationFetchCache.has(resourceUrl)) return;
+
+        const request = fetch(resourceUrl, {
+            cache: 'force-cache',
+            credentials: 'same-origin',
+            priority
+        }).catch(() => null);
+        navigationFetchCache.set(resourceUrl, request);
     }
 
     applyMobileImageSources();
@@ -294,10 +299,6 @@
             clearInterval(activeTransitionInterval);
             activeTransitionInterval = null;
         }
-        if (activeTransitionTimeout) {
-            clearTimeout(activeTransitionTimeout);
-            activeTransitionTimeout = null;
-        }
         if (activeTransitionLoader) {
             activeTransitionLoader.remove();
             activeTransitionLoader = null;
@@ -316,10 +317,12 @@
         link.addEventListener('pointerenter', () => {
             const targetUrl = link.getAttribute('href') || '';
             preloadImages(getCriticalTransitionPreloadUrls(targetUrl));
+            warmNavigationTarget(targetUrl);
         }, { once: true });
         link.addEventListener('focus', () => {
             const targetUrl = link.getAttribute('href') || '';
             preloadImages(getCriticalTransitionPreloadUrls(targetUrl));
+            warmNavigationTarget(targetUrl);
         }, { once: true });
         link.addEventListener('pointerdown', () => {
             const targetUrl = link.getAttribute('href') || '';
@@ -327,16 +330,17 @@
                 linkRel: 'preload',
                 fetchPriority: 'high'
             });
+            warmNavigationTarget(targetUrl, 'high');
         }, { once: true, passive: true });
 
         link.addEventListener('click', function(e) {
             if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
             const targetUrl = this.getAttribute('href');
-            const criticalPreload = preloadImages(getCriticalTransitionPreloadUrls(targetUrl), {
-                decode: true,
+            preloadImages(getCriticalTransitionPreloadUrls(targetUrl), {
                 linkRel: 'preload',
                 fetchPriority: 'high'
             });
+            warmNavigationTarget(targetUrl, 'high');
 
             // 返回主页的链接直接跳转，由主页 main.js 处理加载动画
             if (targetUrl.includes('index.html')) {
@@ -394,15 +398,7 @@
                     if (progressBar) progressBar.style.width = '100%';
                     clearInterval(activeTransitionInterval);
                     activeTransitionInterval = null;
-                    activeTransitionTimeout = setTimeout(() => {
-                        const navigationReady = isConstrainedDevice()
-                            ? criticalPreload
-                            : waitBriefly(criticalPreload, 650);
-
-                        navigationReady.then(() => {
-                            window.location.href = targetUrl;
-                        });
-                    }, 50);
+                    window.location.href = targetUrl;
                 } else {
                     if (progressBar) progressBar.style.width = progress + '%';
                 }
