@@ -202,12 +202,29 @@
         navigationFetchCache.set(resourceUrl, request);
     }
 
+    function warmSubpageShell(targetUrl, priority = 'low') {
+        if (!(targetUrl || '').includes('index.html')) {
+            warmNavigationResource('css/pages.css?v=transition-20260730', priority);
+            warmNavigationResource('js/pages.js?v=transition-20260730', priority);
+        }
+    }
+
     function warmNavigationTarget(targetUrl, priority = 'low') {
         warmNavigationResource(targetUrl, priority);
-        if (!(targetUrl || '').includes('index.html')) {
-            warmNavigationResource('css/pages.css?v=performance-20260730', priority);
-            warmNavigationResource('js/pages.js?v=performance-20260730', priority);
-        }
+        warmSubpageShell(targetUrl, priority);
+    }
+
+    function startCrossPageTransition(targetUrl) {
+        try {
+            const targetPage = (targetUrl || '').split('#')[0].split('?')[0].split('/').pop();
+            sessionStorage.setItem('pageTransitionStartedAt', String(Date.now()));
+            sessionStorage.setItem('pageTransitionTarget', targetPage || '');
+        } catch (error) {}
+
+        customLoader(1000);
+        window.setTimeout(() => {
+            window.location.href = targetUrl;
+        }, 16);
     }
 
     applyMobileImageSources();
@@ -219,6 +236,14 @@
         }
         window.setTimeout(task, Math.min(timeout, 500));
     }
+
+    window.addEventListener('load', () => {
+        scheduleIdleTask(() => {
+            ['research.html', 'life.html', 'motion.html', 'about.html'].forEach(targetUrl => {
+                warmNavigationResource(targetUrl);
+            });
+        }, 5000);
+    }, { once: true });
 
     function waitForImageElement(image, timeout = 2200) {
         if (!image) return Promise.resolve();
@@ -357,7 +382,7 @@
                     linkRel: 'preload',
                     fetchPriority: 'high'
                 });
-                warmNavigationTarget(targetUrl, 'high');
+                warmSubpageShell(targetUrl, 'high');
             }, { once: true, passive: true });
 
             link.addEventListener('click', function(e) {
@@ -368,12 +393,10 @@
                     linkRel: 'preload',
                     fetchPriority: 'high'
                 });
-                warmNavigationTarget(targetUrl, 'high');
+                warmSubpageShell(targetUrl, 'high');
 
-                // 统一使用 1000ms
-                customLoader(1000, () => {
-                    window.location.href = targetUrl;
-                });
+                // 导航立即开始，加载界面会在目标页面延续到满 1000ms。
+                startCrossPageTransition(targetUrl);
             });
         });
     }

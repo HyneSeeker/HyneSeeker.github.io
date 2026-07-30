@@ -30,6 +30,74 @@
         }
     }
 
+    const pageTransitionDuration = 1000;
+
+    function completeIncomingPageTransition() {
+        const root = document.documentElement;
+        const arrivalLoader = document.getElementById('pageArrivalLoader');
+        if (
+            !root.classList.contains('page-transition-arriving') ||
+            !arrivalLoader ||
+            arrivalLoader.dataset.transitionActive === 'true'
+        ) return;
+
+        let startedAt = 0;
+        try {
+            startedAt = Number(sessionStorage.getItem('pageTransitionStartedAt'));
+        } catch (error) {}
+
+        const elapsed = startedAt ? Math.max(0, Date.now() - startedAt) : pageTransitionDuration;
+        const remaining = Math.max(0, pageTransitionDuration - elapsed);
+        const progressBar = arrivalLoader.querySelector('.progress-bar');
+
+        arrivalLoader.dataset.transitionActive = 'true';
+        arrivalLoader.setAttribute('aria-hidden', 'false');
+        if (progressBar) {
+            progressBar.style.transition = 'none';
+            progressBar.style.width = `${Math.min(100, elapsed / pageTransitionDuration * 100)}%`;
+            requestAnimationFrame(() => {
+                progressBar.style.transition = `width ${remaining}ms linear`;
+                progressBar.style.width = '100%';
+            });
+        }
+
+        const finish = () => {
+            root.classList.remove('page-transition-arriving');
+            arrivalLoader.dataset.transitionActive = 'false';
+            arrivalLoader.setAttribute('aria-hidden', 'true');
+            try {
+                sessionStorage.removeItem('pageTransitionStartedAt');
+                sessionStorage.removeItem('pageTransitionTarget');
+            } catch (error) {}
+        };
+
+        if (remaining > 0) {
+            window.setTimeout(finish, remaining);
+        } else {
+            finish();
+        }
+    }
+
+    completeIncomingPageTransition();
+
+    function activateStoredIncomingTransition() {
+        let startedAt = 0;
+        let targetPage = '';
+        try {
+            startedAt = Number(sessionStorage.getItem('pageTransitionStartedAt'));
+            targetPage = sessionStorage.getItem('pageTransitionTarget') || '';
+        } catch (error) {}
+
+        const currentPage = window.location.pathname.split('/').pop();
+        const elapsed = startedAt ? Date.now() - startedAt : pageTransitionDuration;
+        if (startedAt && elapsed < 10000 && (!targetPage || targetPage === currentPage)) {
+            document.documentElement.classList.add('page-transition-arriving');
+            completeIncomingPageTransition();
+        }
+    }
+
+    window.addEventListener('pageshow', activateStoredIncomingTransition);
+
     const criticalTransitionImagePreloads = {
         'research.html': [
             'images/RESEARCH/research.webp'
@@ -214,6 +282,17 @@
         }, delay);
     }
 
+    window.addEventListener('load', () => {
+        scheduleIdleTask(() => {
+            ['index.html', 'research.html', 'life.html', 'motion.html', 'about.html'].forEach(targetUrl => {
+                const currentPage = window.location.pathname.split('/').pop();
+                if (targetUrl !== currentPage) {
+                    warmNavigationTarget(targetUrl);
+                }
+            });
+        }, 5000, 1200);
+    }, { once: true });
+
     const mobileImageWarmupQueue = [];
     const mobileImageWarmupQueued = new Set();
     let mobileImageWarmupRunning = false;
@@ -330,7 +409,6 @@
                 linkRel: 'preload',
                 fetchPriority: 'high'
             });
-            warmNavigationTarget(targetUrl, 'high');
         }, { once: true, passive: true });
 
         link.addEventListener('click', function(e) {
@@ -340,7 +418,6 @@
                 linkRel: 'preload',
                 fetchPriority: 'high'
             });
-            warmNavigationTarget(targetUrl, 'high');
 
             // 返回主页的链接直接跳转，由主页 main.js 处理加载动画
             if (targetUrl.includes('index.html')) {
@@ -357,6 +434,11 @@
 
             // 统一使用 1000ms
             const transitionTime = 1000;
+            try {
+                const targetPage = (targetUrl || '').split('#')[0].split('?')[0].split('/').pop();
+                sessionStorage.setItem('pageTransitionStartedAt', String(Date.now()));
+                sessionStorage.setItem('pageTransitionTarget', targetPage || '');
+            } catch (error) {}
 
             // 创建临时加载屏
             const loader = document.createElement('div');
@@ -372,6 +454,9 @@
             `;
             activeTransitionLoader = loader;
             document.body.appendChild(loader);
+            window.setTimeout(() => {
+                window.location.href = targetUrl;
+            }, 16);
 
             // 移除链接的焦点，防止 :active 样式
             link.blur();
@@ -398,7 +483,6 @@
                     if (progressBar) progressBar.style.width = '100%';
                     clearInterval(activeTransitionInterval);
                     activeTransitionInterval = null;
-                    window.location.href = targetUrl;
                 } else {
                     if (progressBar) progressBar.style.width = progress + '%';
                 }
