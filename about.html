@@ -13,15 +13,15 @@
                 const elapsed = Date.now() - startedAt;
                 if (startedAt && elapsed < 10000 && (!target || target === currentPage)) {
                     document.documentElement.classList.add('page-transition-arriving');
-                    window.setTimeout(() => document.documentElement.classList.remove('page-transition-arriving'), Math.max(0, 1000 - elapsed) + 800);
+                    window.setTimeout(() => document.documentElement.classList.remove('page-transition-arriving'), Math.max(0, 1000 - elapsed) + 150);
                 }
             } catch (error) {}
         }());
     </script>
     <link rel="preload" as="image" href="images/mobile/1024/ABOUT/jiaozhi.webp" media="(max-width: 768px)" fetchpriority="high">
     <link rel="preload" as="image" href="images/ABOUT/jiaozhi.webp" media="(min-width: 769px)" fetchpriority="high">
-    <link rel="stylesheet" href="css/style.css?v=transition-20260730">
-    <link rel="stylesheet" href="css/pages.css?v=transition-20260730">
+    <link rel="stylesheet" href="css/style.css?v=transition-safe-20260730">
+    <link rel="stylesheet" href="css/pages.css?v=transition-safe-20260730">
 </head>
 <body data-lang="zh">
     <div class="loader page-arrival-loader" id="pageArrivalLoader" aria-hidden="true">
@@ -230,6 +230,6 @@
         </div>
     </footer>
 
-    <script src="js/pages.js?v=transition-20260730"></script>
+    <script src="js/pages.js?v=transition-safe-20260730"></script>
 </body>
 </html>

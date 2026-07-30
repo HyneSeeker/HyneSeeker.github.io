@@ -403,29 +403,14 @@
             preloadImages(getCriticalTransitionPreloadUrls(targetUrl));
             warmNavigationTarget(targetUrl);
         }, { once: true });
-        link.addEventListener('pointerdown', () => {
-            const targetUrl = link.getAttribute('href') || '';
-            preloadImages(getCriticalTransitionPreloadUrls(targetUrl), {
-                linkRel: 'preload',
-                fetchPriority: 'high'
-            });
-        }, { once: true, passive: true });
-
         link.addEventListener('click', function(e) {
             if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
             const targetUrl = this.getAttribute('href');
-            preloadImages(getCriticalTransitionPreloadUrls(targetUrl), {
-                linkRel: 'preload',
-                fetchPriority: 'high'
-            });
 
             // 返回主页的链接直接跳转，由主页 main.js 处理加载动画
             if (targetUrl.includes('index.html')) {
                 return; // 不阻止默认行为，让浏览器直接跳转
             }
-
-            e.preventDefault();
-            e.stopPropagation();
 
             // 防止重复触发
             if (link.dataset.transitioning === 'true') return;
@@ -454,9 +439,12 @@
             `;
             activeTransitionLoader = loader;
             document.body.appendChild(loader);
+            // 若导航仍未完成，避免旧页面被临时遮罩永久覆盖。
             window.setTimeout(() => {
-                window.location.href = targetUrl;
-            }, 16);
+                if (!document.hidden && activeTransitionLoader === loader) {
+                    clearPageTransition();
+                }
+            }, 1250);
 
             // 移除链接的焦点，防止 :active 样式
             link.blur();
