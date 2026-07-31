@@ -751,11 +751,13 @@
         澳门: ['images/LIFE/TRAVEL/CHINA/Aomen/am.webp'],
         北京: ['images/LIFE/TRAVEL/CHINA/Beijing/bj.webp'],
         重庆: ['images/LIFE/TRAVEL/CHINA/Chongqing/cq.webp'],
+        甘肃: ['images/LIFE/TRAVEL/CHINA/Gansu/gs.webp'],
         广东: ['images/LIFE/TRAVEL/CHINA/Guangdong/gd.webp'],
         贵州: ['images/LIFE/TRAVEL/CHINA/Guizhou/gz.webp'],
         海南: ['images/LIFE/TRAVEL/CHINA/Hainan/hn.webp'],
         河北: ['images/LIFE/TRAVEL/CHINA/Hebei/hb.webp'],
         河南: ['images/LIFE/TRAVEL/CHINA/Henan/hn.webp'],
+        黑龙江: ['images/LIFE/TRAVEL/CHINA/Heilongjiang/hlj.webp'],
         湖北: ['images/LIFE/TRAVEL/CHINA/Hubei/hb.webp'],
         湖南: ['images/LIFE/TRAVEL/CHINA/Hunan/hn.webp'],
         江苏: ['images/LIFE/TRAVEL/CHINA/Jiangsu/js.webp'],
@@ -771,6 +773,7 @@
         陕西: ['images/LIFE/TRAVEL/CHINA/Shanxi/sx.webp'],
         天津: ['images/LIFE/TRAVEL/CHINA/Tianjin/tj.webp'],
         香港: ['images/LIFE/TRAVEL/CHINA/Xianggang/xg.webp'],
+        青海: ['images/LIFE/TRAVEL/CHINA/Qinghai/qh.webp'],
         云南: ['images/LIFE/TRAVEL/CHINA/Yunnan/yn.webp'],
         浙江: ['images/LIFE/TRAVEL/CHINA/Zhejiang/zj.webp']
     };
@@ -1013,7 +1016,7 @@
     }
 
     const visitedCountryNames = new Set(['China', 'Taiwan', 'New Zealand', 'Qatar', 'Italy', 'France']);
-    const unvisitedChinaProvinceNames = new Set(['新疆', '西藏', '广西', '福建', '台湾', '甘肃']);
+    const unvisitedChinaProvinceNames = new Set(['新疆', '西藏', '广西', '福建', '台湾']);
 
     function getProvinceShortName(name) {
         return (name || '')
