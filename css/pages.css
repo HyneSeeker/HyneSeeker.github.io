@@ -1854,6 +1854,14 @@ body[data-lang="en"] .research-list.lang-en {
     justify-self: center;
 }
 
+.finished-item-no-description .item-title {
+    margin-bottom: 22px;
+}
+
+.finished-item-no-description .item-content {
+    align-self: center;
+}
+
 .finished-item-wide {
     grid-template-columns: minmax(0, 1fr);
     gap: 30px;

@@ -487,6 +487,7 @@
         if (element.classList.contains('animated')) return;
 
         const target = parseInt(element.dataset.target);
+        const suffix = element.dataset.suffix || '';
         const duration = 2000;
         const startTime = Date.now();
         const startValue = 0;
@@ -499,12 +500,12 @@
             const easeOutQuart = 1 - Math.pow(1 - progress, 4);
             const currentValue = Math.floor(startValue + (target - startValue) * easeOutQuart);
 
-            element.textContent = currentValue;
+            element.textContent = currentValue + suffix;
 
             if (progress < 1) {
                 requestAnimationFrame(updateNumber);
             } else {
-                element.textContent = target;
+                element.textContent = target + suffix;
                 element.classList.add('animated');
             }
         }
