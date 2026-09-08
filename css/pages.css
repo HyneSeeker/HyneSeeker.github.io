@@ -1743,7 +1743,8 @@ body[data-lang="en"] .research-list.lang-en {
         rgba(0, 0, 0, 0.34);
 }
 
-.art-main-carousel.is-linked-photo .sports-carousel-image {
+.art-main-carousel.is-linked-photo .sports-carousel-image,
+.art-main-carousel.is-contain-photo .sports-carousel-image {
     object-fit: contain;
     padding: 18px;
     background:
@@ -1852,14 +1853,6 @@ body[data-lang="en"] .research-list.lang-en {
 .finished-item-portrait .item-image {
     width: min(100%, 430px);
     justify-self: center;
-}
-
-.finished-item-no-description .item-title {
-    margin-bottom: 22px;
-}
-
-.finished-item-no-description .item-content {
-    align-self: center;
 }
 
 .finished-item-wide {

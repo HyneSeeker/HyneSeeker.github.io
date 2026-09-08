@@ -560,6 +560,10 @@
             carousel.dataset.carouselLinkPhotoZh || '',
             carousel.dataset.carouselLinkPhotoEn || ''
         ].filter(Boolean);
+        const containPhotos = (carousel.dataset.carouselContainPhotos || '')
+            .split(',')
+            .map(photo => photo.trim())
+            .filter(Boolean);
         const linkedUrl = carousel.dataset.carouselLinkUrl || '';
         const carouselName = carousel.dataset.carouselName || '照片';
         const carouselAlt = carousel.dataset.carouselAlt || 'Carousel photo';
@@ -631,6 +635,7 @@
                 carousel.classList.toggle('is-portrait', nextImage.naturalHeight > nextImage.naturalWidth);
                 carousel.classList.toggle('is-landscape', nextImage.naturalWidth >= nextImage.naturalHeight);
                 carousel.classList.toggle('is-linked-photo', linkedPhotos.includes(targetSrc));
+                carousel.classList.toggle('is-contain-photo', containPhotos.includes(targetSrc));
                 requestAnimationFrame(() => {
                     if (token === renderToken) {
                         image.style.opacity = '1';
